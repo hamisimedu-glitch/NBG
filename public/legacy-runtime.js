@@ -47,11 +47,11 @@ window.NBG_CONFIG = {
 
     /* ---- Residences --------------------------------------------------- */
     categories: [
-      { id: "1bed", img: __IMG["interior/living-lounge.webp"], label: "1 Bedroom", short: "One-bedroom residences", range: "60 – 75 sqm",
+      { id: "1bed", img: __IMG["interior/bedroom-bed.webp"], label: "1 Bedroom", short: "One-bedroom residences", range: "60 – 75 sqm",
         blurb: "Compact, light-filled apartments with an open lounge and dining area, a master bedroom and a private balcony." },
-      { id: "2bed", img: __IMG["interior/living-open-plan.webp"], label: "2 Bedroom", short: "Two-bedroom residences", range: "125 – 160 sqm",
+      { id: "2bed", img: __IMG["interior/dining-alt.webp"], label: "2 Bedroom", short: "Two-bedroom residences", range: "125 – 160 sqm",
         blurb: "Generous family layouts with a master suite, a second bedroom, open lounge and dining, and balconies." },
-      { id: "3bed", img: __IMG["exterior/ocean-mist-rooftop.webp"], label: "3 Bedroom + DSQ", short: "Three-bedroom residences with DSQ", range: "160 – 190 sqm",
+      { id: "3bed", img: __IMG["exterior/ocean-mist-front.webp"], video: "/videos/ocean-mist-exterior.mp4", label: "3 Bedroom + DSQ", short: "Three-bedroom residences with DSQ", range: "160 – 190 sqm",
         blurb: "The largest homes in the tower, arranged on the 10th floor and including a domestic staff quarter (DSQ)." }
     ],
 
@@ -608,8 +608,12 @@ window.NBG_CONFIG = {
   function renderCats() {
     var wrap = $("#cat-cards");
     wrap.innerHTML = D.categories.map(function (c, i) {
-      return '<button class="cat-card" role="tab" type="button" data-cat="' + c.id + '" aria-selected="' + (c.id === state.cat) + '">' +
-        '<span class="cc-img">' + NBG.img(c.img, "", { w: 1200, h: 900 }) + '</span>' +
+      var media = c.video
+        ? '<video class="cc-film" data-broadcast-video muted loop playsinline preload="none" width="1280" height="720" poster="' + esc(c.img) + '" aria-hidden="true"><source src="' + esc(c.video) + '" type="video/mp4"></video><span class="cc-video-status" data-clip-status role="status" aria-live="polite"></span>'
+        : NBG.img(c.img, "", { w: 1200, h: 900 });
+      return '<button class="cat-card" role="tab" type="button" data-cat="' + c.id + '"' + (c.video ? ' data-broadcast-clip' : '') + ' aria-selected="' + (c.id === state.cat) + '">' +
+        '<span class="cc-img">' + media + '</span>' +
+        (c.video ? '<span class="cc-film-tag">Film excerpt</span>' : '') +
         '<span class="cc-body"><span class="cc-num">0' + (i + 1) + '</span><h3>' + esc(c.label) + '</h3><span class="cc-range">' + esc(c.range) + '</span><p>' + esc(c.blurb) + '</p><span class="cc-cta">Explore layouts <span aria-hidden="true">→</span></span></span></button>';
     }).join("");
     $$(".cat-card", wrap).forEach(function (b) { b.addEventListener("click", function () { selectCat(b.getAttribute("data-cat"), true); }); });
@@ -1046,7 +1050,9 @@ window.NBG_CONFIG = {
     if (playback && typeof playback.catch === "function") playback.catch(function (error) {
       if (error && error.name === "AbortError") return;
       var clip = video.closest("[data-broadcast-clip]"), status = $("[data-clip-status]", clip);
-      status.textContent = "Autoplay is unavailable. Use the player controls to start this clip.";
+      status.textContent = video.controls
+        ? "Autoplay is unavailable. Use the player controls to start this clip."
+        : "This residence film preview could not autoplay; a still image is shown instead.";
       console.error("Could not autoplay an Ocean Mist film excerpt.", error);
     });
   }
