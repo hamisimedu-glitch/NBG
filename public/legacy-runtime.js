@@ -348,11 +348,17 @@ window.NBG_CONFIG = {
       var el = $("#loader"); if (!el) { NBG.setReady(); return; }
       if (NBG.reduced) { el.remove(); NBG.setReady(); return; }
       NBG.lockScroll(true);
-      var fill = $("#loader-fill"), pct = $("#loader-pct"), hero = $(".hero-img"), t0 = performance.now(), MIN = 2300, heroOk = false, shown = 0, finished = false;
+      var fill = $("#loader-fill"), pct = $("#loader-pct"), status = $("#loader-status"), progress = $("#loader-progress"), hero = $(".hero-img"), t0 = performance.now(), MIN = 2300, heroOk = false, shown = 0, finished = false;
       function heroDone() { heroOk = true; }
       if (hero && hero.complete && hero.naturalWidth) heroDone(); else if (hero) { hero.addEventListener("load", heroDone, { once: true }); hero.addEventListener("error", heroDone, { once: true }); } else heroOk = true;
+      function updateProgress(value) {
+        pct.textContent = value;
+        progress.setAttribute("aria-valuenow", value);
+        fill.style.transform = "scaleX(" + Math.max(0, Math.min(1, shown / 100)) + ")";
+        status.textContent = value < 28 ? "Laying the foundation" : value < 62 ? "Connecting the details" : value < 94 ? "Bringing the experience together" : "Ready to discover";
+      }
       function finish() {
-        if (finished) return; finished = true; pct.textContent = "100"; fill.style.transform = "translateY(0)";
+        if (finished) return; finished = true; shown = 100; updateProgress(100);
         setTimeout(function () {
           el.classList.add("done"); NBG.setReady(); NBG.lockScroll(false);
           setTimeout(function () { el.remove(); }, 1400);
@@ -361,7 +367,7 @@ window.NBG_CONFIG = {
       (function tick(now) {
         var el_ = now - t0, target = Math.min(el_ / MIN, 1) * (heroOk ? 100 : 88);
         shown += (target - shown) * .12; var v = Math.min(Math.round(shown), 99);
-        pct.textContent = v; fill.style.transform = "translateY(" + (100 - shown * 1.0) + "%)";
+        updateProgress(v);
         if (finished) return;
         if (heroOk && el_ >= MIN && shown > 97) { finish(); return; }
         if (el_ > 9000) { finish(); return; }
@@ -817,9 +823,9 @@ window.NBG_CONFIG = {
     });
 
     /* mobile menu */
-    var tg = $(".menu-toggle"), m = $("#mobile-menu"), release = null;
-    function open() { m.hidden = false; void m.offsetWidth; m.classList.add("open"); tg.setAttribute("aria-expanded", "true"); tg.setAttribute("aria-label", "Close menu"); NBG.lockScroll(true); release = NBG.trapFocus(m); header.style.zIndex = 140; }
-    function close() { if (m.hidden) return; m.classList.remove("open"); tg.setAttribute("aria-expanded", "false"); tg.setAttribute("aria-label", "Open menu"); NBG.lockScroll(false); if (release) release(); setTimeout(function () { if (!m.classList.contains("open")) { m.hidden = true; header.style.zIndex = ""; } }, 820); }
+    var tg = $(".menu-toggle"), tgLabel = $(".menu-toggle-label", tg), m = $("#mobile-menu"), release = null;
+    function open() { m.hidden = false; void m.offsetWidth; m.classList.add("open"); tg.setAttribute("aria-expanded", "true"); tg.setAttribute("aria-label", "Close menu"); tgLabel.textContent = "Close"; NBG.lockScroll(true); release = NBG.trapFocus(m); header.style.zIndex = 140; }
+    function close() { if (m.hidden) return; m.classList.remove("open"); tg.setAttribute("aria-expanded", "false"); tg.setAttribute("aria-label", "Open menu"); tgLabel.textContent = "Menu"; NBG.lockScroll(false); if (release) release(); setTimeout(function () { if (!m.classList.contains("open")) { m.hidden = true; header.style.zIndex = ""; } }, 820); }
     tg.addEventListener("click", function () { m.classList.contains("open") ? close() : open(); });
     $$("a", m).forEach(function (a) { a.addEventListener("click", close); });
     document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });

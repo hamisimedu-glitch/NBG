@@ -1,11 +1,30 @@
 
-  <div class="loader" id="loader" role="status" aria-live="polite" aria-label="Loading Ocean Mist Tower">
+  <div class="loader" id="loader" role="status" aria-live="polite" aria-label="Loading Next Bridge Group Limited">
     <div class="loader-panel top"></div><div class="loader-panel bot"></div>
     <div class="loader-inner">
-      <div class="loader-plate"><img data-k="brand/nbg-logo.png" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" width="60" height="60" alt=""></div>
-      <div class="loader-orb"><div class="loader-fill" id="loader-fill"><svg viewBox="0 0 400 30" preserveAspectRatio="none" aria-hidden="true"><path d="M0 15 Q50 0 100 15 T200 15 T300 15 T400 15 V30 H0Z" fill="#2BC4C4"/></svg><i></i></div><div class="loader-pct"><span id="loader-pct">0</span>%</div></div>
-      <p class="loader-name">Ocean Mist</p>
-      <p class="loader-sub">Nyali · Mombasa</p>
+      <div class="loader-scene" aria-hidden="true">
+        <span class="loader-orbit-ring"></span><span class="loader-orbit-ring second"></span>
+        <svg class="loader-bridge" viewBox="0 0 260 160" fill="none">
+          <path class="loader-bridge-line" d="M17 126h226M26 121C82 45 178 45 234 121M52 119l17-38m122 38-17-38M68 81h124M130 42v79"/>
+          <path class="loader-bridge-line fine" d="M38 110l30-29m154 29-30-29M96 80v41m68-41v41"/>
+        </svg>
+        <div class="loader-plate"><img data-k="brand/nbg-logo.png" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" width="112" height="112" alt="Next Bridge Group Limited logo"></div>
+      </div>
+      <div class="loader-brand">
+        <p class="loader-name">Next Bridge</p>
+        <p class="loader-company">Group Limited</p>
+      </div>
+      <p class="loader-sub">Connecting you to your new home</p>
+      <div class="loader-progress-block">
+        <div class="loader-progress-heading">
+          <span id="loader-status">Laying the foundation</span>
+          <span class="loader-pct" aria-hidden="true"><span id="loader-pct">0</span>%</span>
+        </div>
+        <div class="loader-track" id="loader-progress" role="progressbar" aria-label="Loading page resources" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <span class="loader-fill" id="loader-fill"></span>
+        </div>
+        <div class="loader-meta"><span>Nyali, Mombasa</span><span>Property development</span></div>
+      </div>
     </div>
   </div>
   <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
@@ -49,26 +68,36 @@
       </nav>
 
       <a class="btn btn-gold nav-cta" href="#enquire" data-enquire="viewing">Enquire</a>
-      <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu"><span></span><span></span></button>
+      <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu"><span class="menu-toggle-label">Menu</span><span class="menu-toggle-icon" aria-hidden="true"><i></i><i></i></span></button>
     </div>
   </header>
 
   <div class="mobile-menu" id="mobile-menu" role="dialog" aria-modal="true" aria-label="Site menu" hidden>
+    <div class="mobile-menu-head">
+      <a class="mobile-menu-brand" href="#hero" aria-label="Next Bridge Group home">
+        <span class="mobile-menu-plate"><img data-k="brand/nbg-logo.png" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" width="56" height="56" alt="Next Bridge Group Limited logo"></span>
+        <span class="mobile-menu-brand-text"><strong>Next Bridge</strong><small>Group Limited</small></span>
+      </a>
+      <p class="mobile-menu-project"><small>Current project</small><strong>Ocean Mist Tower</strong></p>
+    </div>
+    <div class="mobile-menu-content">
+      <p class="mobile-menu-kicker">Explore</p>
     <nav aria-label="Mobile">
       <ul>
-        <li><a href="#hero"><span>01</span>Home</a></li>
-        <li><a href="#about"><span>02</span>About NBG</a></li>
-        <li><a href="#ocean-mist"><span>03</span>Ocean Mist</a></li>
-        <li><a href="#residences"><span>04</span>Residences</a></li>
-        <li><a href="#tour"><span>05</span>Step Inside</a></li>
-        <li><a href="#amenities"><span>06</span>Amenities</a></li>
-        <li><a href="#location"><span>07</span>Location</a></li>
-        <li><a href="#enquire"><span>08</span>Contact</a></li>
+        <li><a href="#hero"><span class="mobile-menu-number">01</span><span class="mobile-menu-link-copy"><strong>Home</strong><small>Development overview</small></span><span class="mobile-menu-arrow" aria-hidden="true">↗</span></a></li>
+        <li><a href="#about"><span class="mobile-menu-number">02</span><span class="mobile-menu-link-copy"><strong>About NBG</strong><small>Our company</small></span><span class="mobile-menu-arrow" aria-hidden="true">↗</span></a></li>
+        <li><a href="#ocean-mist"><span class="mobile-menu-number">03</span><span class="mobile-menu-link-copy"><strong>Ocean Mist</strong><small>Current project</small></span><span class="mobile-menu-arrow" aria-hidden="true">↗</span></a></li>
+        <li><a href="#residences"><span class="mobile-menu-number">04</span><span class="mobile-menu-link-copy"><strong>Residences</strong><small>Layouts and plans</small></span><span class="mobile-menu-arrow" aria-hidden="true">↗</span></a></li>
+        <li><a href="#tour"><span class="mobile-menu-number">05</span><span class="mobile-menu-link-copy"><strong>Step inside</strong><small>Room-by-room tour</small></span><span class="mobile-menu-arrow" aria-hidden="true">↗</span></a></li>
+        <li><a href="#amenities"><span class="mobile-menu-number">06</span><span class="mobile-menu-link-copy"><strong>Amenities</strong><small>Shared spaces</small></span><span class="mobile-menu-arrow" aria-hidden="true">↗</span></a></li>
+        <li><a href="#location"><span class="mobile-menu-number">07</span><span class="mobile-menu-link-copy"><strong>Location</strong><small>Nyali, Mombasa</small></span><span class="mobile-menu-arrow" aria-hidden="true">↗</span></a></li>
+        <li><a href="#enquire"><span class="mobile-menu-number">08</span><span class="mobile-menu-link-copy"><strong>Contact</strong><small>Talk with our team</small></span><span class="mobile-menu-arrow" aria-hidden="true">↗</span></a></li>
       </ul>
     </nav>
+    </div>
     <div class="mobile-menu-foot">
-      <a class="btn btn-gold" href="#enquire" data-enquire="viewing">Request a private viewing</a>
-      <p>Bandari Road, Nyali, Mombasa</p>
+      <p><small>Visit us</small><strong>Bandari Road, Nyali</strong><span>Mombasa, Kenya</span></p>
+      <a class="btn btn-gold" href="#enquire" data-enquire="viewing">Book a private viewing <span aria-hidden="true">↗</span></a>
     </div>
   </div>
 
