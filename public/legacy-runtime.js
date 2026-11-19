@@ -112,20 +112,6 @@ window.NBG_CONFIG = {
         iso: null, legend: [], hero: __IMG["exterior/ocean-mist-aerial-terrace.webp"], layoutOnly: true,
         pending: "A dedicated unit plan for this configuration was not included in the brochure. NBG to supply; the 10th-floor layout is shown." }
     ],
-
-
-    /* ---- Render film (official renders, animated) --------------------- */
-    film: [
-      { src: __IMG["exterior/ocean-mist-hero.webp"],         kb: "kbIn",    dur: 7, k: "Nyali, Mombasa",       l: "Where the ocean meets your way of living." },
-      { src: __IMG["exterior/ocean-mist-street.webp"],       kb: "kbRight", dur: 6, k: "Bandari Road",         l: "A tranquil haven, where luxury meets nature." },
-      { src: __IMG["exterior/ocean-mist-facade.webp"],       kb: "kbUp",    dur: 6, k: "Architecture",         l: "Composed for light and air." },
-      { src: __IMG["exterior/ocean-mist-rooftop.webp"],      kb: "kbOut",   dur: 6, k: "Rooftop",              l: "A terrace above the Nyali skyline." },
-      { src: __IMG["interior/living-lounge.webp"],           kb: "kbLeft",  dur: 6, k: "Living",               l: "Quiet luxury, beckoning you to unwind." },
-      { src: __IMG["interior/kitchen-breakfast-bar.webp"],   kb: "kbIn",    dur: 5, k: "Kitchen",              l: "Designed to exceed the highest of expectations." },
-      { src: __IMG["interior/bathroom.webp"],                kb: "kbOut",   dur: 5, k: "Bathroom",             l: "Absolute tranquillity." },
-      { src: __IMG["exterior/ocean-mist-aerial-site.webp"],  kb: "kbIn",    dur: 6, k: "Ocean Mist Tower",     l: "Your next chapter starts here.", end: true }
-    ],
-
     /* ---- Tower levels (from brochure layouts) ------------------------- */
     levels: [
       { id: "roof", label: "Roof terrace", range: "roof", plan: __IMG["plans/roof-terrace-layout.webp"], title: "Roof terrace", text: "The brochure’s roof-terrace layout shows landscaped outdoor areas and dining space, with the rooftop restaurant listed among the tower’s amenities.", tags: ["Rooftop restaurant", "Terrace"] },
@@ -1021,57 +1007,78 @@ window.NBG_CONFIG = {
 })();
 
 
-/* film.js — cinematic render film: Ken Burns, grade, grain, chapters, cinema mode */
+/* film.js — native playback for the supplied Ocean Mist film */
 (function () {
-  var NBG = window.NBG, $ = NBG.$, $$ = NBG.$$, esc = NBG.esc;
+  var NBG = window.NBG, $ = NBG.$;
   NBG.film = {
     init: function () {
-      var stage = $("#film-stage"); if (!stage) return;
-      var S = NBG.data.film, scenesEl = $("#film-scenes"), cap = $("#film-cap"), segsEl = $("#film-segs"), play = $("#film-play"), sweep = $("#film-sweep");
-      var cur = 0, playing = false, inView = false;
-      scenesEl.innerHTML = S.map(function (s, i) { return '<div class="scene" style="--kb:' + s.kb + ';--dur:' + (s.dur + 1.4) + 's">' + NBG.img(s.src, "", { w: 2000, lazy: i > 1 }) + '</div>'; }).join("");
-      segsEl.innerHTML = S.map(function (s, i) { return '<button class="film-seg" type="button" data-i="' + i + '" style="--dur:' + s.dur + 's" aria-label="Chapter ' + (i + 1) + ': ' + esc(s.k) + '"><i></i></button>'; }).join("");
-      var scenes = $$(".scene", scenesEl), segs = $$(".film-seg", segsEl);
-
-      function go(i) {
-        cur = (i + S.length) % S.length; var s = S[cur];
-        scenes.forEach(function (sc, k) { if (k === cur) { sc.classList.remove("on"); void sc.offsetWidth; sc.classList.add("on"); } else sc.classList.remove("on"); });
-        segs.forEach(function (sg, k) { sg.classList.remove("run", "done"); if (k < cur) sg.classList.add("done"); });
-        var f = segs[cur]; void f.offsetWidth; f.classList.add("run");
-        cap.innerHTML = '<p class="k">' + esc(s.k) + '</p><p class="l"><span>' + esc(s.l) + '</span></p>';
-        sweep.classList.remove("go"); void sweep.offsetWidth; sweep.classList.add("go");
-        stage.classList.toggle("at-end", !!s.end);
-      }
-      function set(p) {
-        playing = p && (inView || stage.classList.contains("cinema")); stage.classList.toggle("paused", !playing);
-        play.setAttribute("aria-label", playing ? "Pause film" : "Play film");
-        play.innerHTML = playing ? '<span style="font-size:13px;letter-spacing:2px">❚❚</span>' : '<span class="play-ico"></span>';
-      }
-      segsEl.addEventListener("click", function (e) { var b = e.target.closest(".film-seg"); if (b) { go(+b.getAttribute("data-i")); set(true); } });
-      segsEl.addEventListener("animationend", function (e) { if (e.animationName === "fillbar" && e.target.parentNode.classList.contains("run")) go(cur + 1); });
-      play.addEventListener("click", function () { userPaused = playing; set(!playing); });
-      var userPaused = false;
-      stage.addEventListener("keydown", function (e) { if (e.key === " " && e.target === stage) { e.preventDefault(); userPaused = playing; set(!playing); } if (e.key === "ArrowRight") go(cur + 1); if (e.key === "ArrowLeft") go(cur - 1); });
-
-      function cinema(on) {
-        stage.classList.toggle("cinema", on); NBG.lockScroll(on);
-        $("#film-full").setAttribute("aria-label", on ? "Exit full screen" : "Full screen");
-        if (on) { document.addEventListener("keydown", escK); stage.focus({ preventScroll: true }); set(true); } else document.removeEventListener("keydown", escK);
-      }
-      function escK(e) { if (e.key === "Escape") cinema(false); }
-      $("#film-full").addEventListener("click", function () { cinema(!stage.classList.contains("cinema")); });
-      $("#film-exit").addEventListener("click", function () { cinema(false); });
-
-      go(0); set(false);
-      if ("IntersectionObserver" in window) new IntersectionObserver(function (es) {
-        inView = es[0].isIntersecting;
-        if (!NBG.reduced) { if (inView && !userPaused) set(true); else if (!inView && !stage.classList.contains("cinema")) set(false); }
-      }, { threshold: 0.5 }).observe(stage);
-
       document.addEventListener("click", function (e) {
-        var a = e.target.closest("[data-film-play]"); if (!a) return;
-        e.preventDefault(); userPaused = false; go(0); $("#film").scrollIntoView({ behavior: NBG.reduced ? "auto" : "smooth", block: "center" });
-        setTimeout(function () { inView = true; set(true); }, 700);
+        var link = e.target.closest("[data-film-play]"); if (!link) return;
+        e.preventDefault();
+        var video = $("#film-video"), section = $("#film"), status = $("#film-status");
+        if (!video || !section || !status) return;
+        var playback = video.play();
+        section.scrollIntoView({ behavior: NBG.reduced ? "auto" : "smooth", block: "center" });
+        playback.catch(function (error) {
+          status.textContent = "The film could not start. Use the player controls to try again.";
+          console.error("Could not start the Ocean Mist Tower film.", error);
+        });
+      });
+      var video = $("#film-video"), status = $("#film-status");
+      if (!video || !status) return;
+      video.addEventListener("play", function () { status.textContent = ""; });
+      video.addEventListener("error", function () {
+        status.textContent = "The film could not be loaded. Please try again later.";
+        console.error("The Ocean Mist Tower film failed to load.", video.error);
+      });
+    }
+  };
+})();
+
+/* clips.js — muted, viewport-aware playback for project film excerpts */
+(function () {
+  var NBG = window.NBG, $ = NBG.$, $$ = NBG.$$;
+
+  function start(video) {
+    if (NBG.reduced || document.hidden) { video.pause(); return; }
+    video.autoplay = true;
+    var playback = video.play();
+    if (playback && typeof playback.catch === "function") playback.catch(function (error) {
+      if (error && error.name === "AbortError") return;
+      var clip = video.closest("[data-broadcast-clip]"), status = $("[data-clip-status]", clip);
+      status.textContent = "Autoplay is unavailable. Use the player controls to start this clip.";
+      console.error("Could not autoplay an Ocean Mist film excerpt.", error);
+    });
+  }
+
+  NBG.clips = {
+    init: function () {
+      var videos = $$("[data-broadcast-video]");
+      if (!videos.length) return;
+      videos.forEach(function (video) {
+        video.muted = true; video.defaultMuted = true; video.loop = true; video.playsInline = true; video.preload = "none";
+        video.addEventListener("play", function () { $("[data-clip-status]", video.closest("[data-broadcast-clip]")).textContent = ""; });
+        video.addEventListener("error", function () {
+          var status = $("[data-clip-status]", video.closest("[data-broadcast-clip]"));
+          status.textContent = "This film excerpt could not be loaded.";
+          console.error("Failed to load an Ocean Mist film excerpt.", video.error);
+        });
+      });
+      if ("IntersectionObserver" in window) {
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) start(entry.target);
+            else entry.target.pause();
+          });
+        }, { threshold: .35 });
+        videos.forEach(function (video) { observer.observe(video); });
+      } else if (!NBG.reduced) videos.forEach(start);
+      document.addEventListener("visibilitychange", function () {
+        if (document.hidden) { videos.forEach(function (video) { video.pause(); }); return; }
+        videos.forEach(function (video) {
+          var rect = video.getBoundingClientRect();
+          if (rect.top < window.innerHeight && rect.bottom > 0) start(video);
+        });
       });
     }
   };
@@ -1266,7 +1273,7 @@ window.NBG_CONFIG = {
 /* main.js — boot. Each module is isolated so one failure never blocks the page. */
 (function () {
   var NBG = window.NBG;
-   ["loader", "fx", "lightbox", "shortlist", "residences", "tour", "sections", "forms", "film", "daylight", "building", "planner", "motion"].forEach(function (m) {
+   ["loader", "fx", "lightbox", "shortlist", "residences", "tour", "sections", "forms", "film", "clips", "daylight", "building", "planner", "motion"].forEach(function (m) {
     try { NBG[m].init(); } catch (e) { if (window.console) console.error("[NBG] module failed:", m, e); }
   });
   /* the floating WhatsApp control falls back to the enquiry form until a number is configured */
