@@ -648,16 +648,17 @@ window.NBG_CONFIG = {
 
   function renderStage() {
     var u = unitById(state.unit), media = $("#stage-media"), info = $("#stage-info");
-    var showIso = state.stageView === "iso" && u.iso, src = showIso ? u.iso : u.plan, alt = showIso ? u.isoAlt : u.planAlt;
+    var showIso = state.stageView === "iso" && !!u.iso, src = showIso ? u.iso : u.plan, alt = showIso ? u.isoAlt : u.planAlt;
     media.className = "stage-media" + (showIso ? "" : " plan");
-    media.innerHTML = (u.iso ? '<div class="stage-toggle" role="group" aria-label="Visualisation"><button type="button" data-v="iso" aria-pressed="' + showIso + '">Layout</button><button type="button" data-v="plan" aria-pressed="' + !showIso + '">Plan</button></div>' : "") +
-      '<button type="button" class="open-unit" style="position:absolute;inset:0;background:none;border:0;cursor:zoom-in" aria-label="Open ' + esc(u.name) + ' full screen"></button>' +
+    media.innerHTML = '<div class="stage-media-head"><span class="stage-view-label"><span class="stage-view-dot" aria-hidden="true"></span>' + (showIso ? "3D layout" : "Floor plan") + '</span>' +
+      (u.iso ? '<div class="stage-toggle" role="group" aria-label="Visualisation"><button type="button" data-v="iso" aria-pressed="' + showIso + '">Layout</button><button type="button" data-v="plan" aria-pressed="' + !showIso + '">Plan</button></div>' : "") + '</div>' +
+      '<button type="button" class="open-unit" aria-label="Open ' + esc(u.name) + ' visual in full screen"><span class="open-unit-label">Expand view <span aria-hidden="true">↗</span></span></button>' +
       '<img src="' + src + '" alt="' + esc(alt) + '" decoding="async">';
-    $$(".stage-toggle button", media).forEach(function (b) { b.style.position = "relative"; b.style.zIndex = 3; b.addEventListener("click", function () { state.stageView = b.getAttribute("data-v"); renderStage(); }); });
+    $$(".stage-toggle button", media).forEach(function (b) { b.addEventListener("click", function () { state.stageView = b.getAttribute("data-v"); renderStage(); }); });
     $(".open-unit", media).addEventListener("click", function () { openUnit(u.id, showIso ? "iso" : "plan"); });
     info.innerHTML = '<p class="eyebrow">' + esc(catOf(u.cat).label) + '</p>' +
-      '<h3 style="margin-top:14px">' + esc(u.name) + '</h3>' +
-      '<p class="sqm">' + u.sqm + '<small>sqm</small></p>' + specHTML(u) +
+      '<h3>' + esc(u.name) + '</h3>' +
+      '<div class="stage-area"><p class="sqm">' + u.sqm + '<small>sqm</small></p><span>Indicative area</span></div>' + specHTML(u) +
       (u.pending ? '<p class="pending-note"><strong>To be confirmed:</strong> ' + esc(u.pending) + '</p>' : "") +
       '<div class="stage-actions"><button class="btn btn-gold" type="button" data-act="plan">View floor plan</button><button class="btn btn-ghost" type="button" data-act="enq">Request a viewing</button>' + NBG.shortlist.heart(u.id) + '</div>';
     info.querySelector('[data-act="plan"]').addEventListener("click", function () { openUnit(u.id, "plan"); });
