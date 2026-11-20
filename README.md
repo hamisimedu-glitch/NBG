@@ -24,3 +24,18 @@ choose “Live time” to resync.
 - `src/legacy.css` contains its styles.
 - `public/legacy-runtime.js` contains its existing interaction code.
 - `public/images/` contains the page images.
+
+## NBG configuration
+
+The site configuration is at the top of `public/legacy-runtime.js`.
+
+- `contact` and `forms.endpoint` are intentionally blank until NBG supplies its
+  real contact details and enquiry destination. The site does not claim an
+  enquiry was sent when that endpoint is missing.
+- `analytics.endpoint` is optional and must be a same-origin event collector.
+  Analytics remain off unless an endpoint is configured and a visitor opts in.
+  Events contain event names, page paths, optional residence IDs and timestamps;
+  enquiry field values are never sent to analytics. Visitors can change their
+  choice later using the footer’s Analytics settings control.
+- Current pricing, availability, completion timing and company credentials are
+  not fabricated. The site directs visitors to confirm these details with NBG.

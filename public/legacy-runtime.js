@@ -29,6 +29,10 @@ window.NBG_CONFIG = {
     method: "POST"
   },
 
+  analytics: {
+    endpoint: ""          // Optional same-origin event collector; disabled until configured.
+  },
+
   social: {               // TODO(NBG): leave "" to hide an icon
     instagram: "", facebook: "", linkedin: "", youtube: "", tiktok: ""
   }
@@ -611,16 +615,31 @@ window.NBG_CONFIG = {
       var media = c.video
         ? '<video class="cc-film" data-broadcast-video muted loop playsinline preload="none" width="1280" height="720" poster="' + esc(c.img) + '" aria-hidden="true"><source src="' + esc(c.video) + '" type="video/mp4"></video><span class="cc-video-status" data-clip-status role="status" aria-live="polite"></span>'
         : NBG.img(c.img, "", { w: 1200, h: 900 });
-      return '<button class="cat-card" role="tab" type="button" data-cat="' + c.id + '"' + (c.video ? ' data-broadcast-clip' : '') + ' aria-selected="' + (c.id === state.cat) + '">' +
+      return '<button class="cat-card" id="cat-tab-' + c.id + '" role="tab" type="button" data-cat="' + c.id + '" aria-controls="explorer" tabindex="' + (c.id === state.cat ? "0" : "-1") + '"' + (c.video ? ' data-broadcast-clip' : '') + ' aria-selected="' + (c.id === state.cat) + '">' +
         '<span class="cc-img">' + media + '</span>' +
         (c.video ? '<span class="cc-film-tag">Film excerpt</span>' : '') +
         '<span class="cc-body"><span class="cc-num">0' + (i + 1) + '</span><h3>' + esc(c.label) + '</h3><span class="cc-range">' + esc(c.range) + '</span><p>' + esc(c.blurb) + '</p><span class="cc-cta">Explore layouts <span aria-hidden="true">→</span></span></span></button>';
     }).join("");
     $$(".cat-card", wrap).forEach(function (b) { b.addEventListener("click", function () { selectCat(b.getAttribute("data-cat"), true); }); });
+    wrap.addEventListener("keydown", function (e) {
+      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+      var tabs = $$(".cat-card", wrap), index = tabs.indexOf(document.activeElement);
+      if (index < 0) return;
+      var next = tabs[(index + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length];
+      next.focus();
+      next.click();
+      e.preventDefault();
+    });
   }
   function selectCat(cat, scroll) {
     state.cat = cat; state.unit = unitsOf(cat)[0].id; state.stageView = unitById(state.unit).iso ? "iso" : "plan";
-    $$(".cat-card").forEach(function (b) { b.setAttribute("aria-selected", b.getAttribute("data-cat") === cat); });
+    if (NBG.analytics) NBG.analytics.track("residence_category_view", { unitId: state.unit });
+    $$(".cat-card").forEach(function (b) {
+      var selected = b.getAttribute("data-cat") === cat;
+      b.setAttribute("aria-selected", selected);
+      b.tabIndex = selected ? 0 : -1;
+    });
+    $("#explorer").setAttribute("aria-labelledby", "cat-tab-" + cat);
     renderSizes(); renderStage();
     if (scroll) $("#explorer").scrollIntoView({ behavior: NBG.reduced ? "auto" : "smooth", block: "start" });
   }
@@ -646,6 +665,14 @@ window.NBG_CONFIG = {
     return '<dl class="spec">' + rows.map(function (r) { return '<div><dt>' + r[0] + '</dt><dd>' + esc(r[1]) + '</dd></div>'; }).join("") + '</dl>';
   }
 
+  function availabilityHTML() {
+    return '<aside class="availability-note"><span>Availability &amp; current pricing</span><strong>Confirm directly with NBG</strong><small>Details can change; ask our team for the latest information.</small></aside>';
+  }
+
+  function availabilityMessage(u) {
+    return "Please share current availability, pricing, floor allocation and delivery details for " + u.name + " (" + u.sqm + " sqm).";
+  }
+
   function renderStage() {
     var u = unitById(state.unit), media = $("#stage-media"), info = $("#stage-info");
     var showIso = state.stageView === "iso" && !!u.iso, src = showIso ? u.iso : u.plan, alt = showIso ? u.isoAlt : u.planAlt;
@@ -653,16 +680,18 @@ window.NBG_CONFIG = {
     media.innerHTML = '<div class="stage-media-head"><span class="stage-view-label"><span class="stage-view-dot" aria-hidden="true"></span>' + (showIso ? "3D layout" : "Floor plan") + '</span>' +
       (u.iso ? '<div class="stage-toggle" role="group" aria-label="Visualisation"><button type="button" data-v="iso" aria-pressed="' + showIso + '">Layout</button><button type="button" data-v="plan" aria-pressed="' + !showIso + '">Plan</button></div>' : "") + '</div>' +
       '<button type="button" class="open-unit" aria-label="Open ' + esc(u.name) + ' visual in full screen"><span class="open-unit-label">Expand view <span aria-hidden="true">↗</span></span></button>' +
-      '<img src="' + src + '" alt="' + esc(alt) + '" decoding="async">';
+      NBG.img(src, alt, { w: 1200, h: 850, sizes: "(max-width:900px) 100vw, 50vw" });
     $$(".stage-toggle button", media).forEach(function (b) { b.addEventListener("click", function () { state.stageView = b.getAttribute("data-v"); renderStage(); }); });
     $(".open-unit", media).addEventListener("click", function () { openUnit(u.id, showIso ? "iso" : "plan"); });
     info.innerHTML = '<p class="eyebrow">' + esc(catOf(u.cat).label) + '</p>' +
       '<h3>' + esc(u.name) + '</h3>' +
       '<div class="stage-area"><p class="sqm">' + u.sqm + '<small>sqm</small></p><span>Indicative area</span></div>' + specHTML(u) +
       (u.pending ? '<p class="pending-note"><strong>To be confirmed:</strong> ' + esc(u.pending) + '</p>' : "") +
-      '<div class="stage-actions"><button class="btn btn-gold" type="button" data-act="plan">View floor plan</button><button class="btn btn-ghost" type="button" data-act="enq">Request a viewing</button>' + NBG.shortlist.heart(u.id) + '</div>';
+      availabilityHTML() +
+      '<div class="stage-actions"><button class="btn btn-gold" type="button" data-act="plan">View floor plan</button><button class="btn btn-ghost" type="button" data-act="enq">Request a viewing</button><button class="link-arrow" type="button" data-act="availability">Ask about this residence</button>' + NBG.shortlist.heart(u.id) + '</div>';
     info.querySelector('[data-act="plan"]').addEventListener("click", function () { openUnit(u.id, "plan"); });
     info.querySelector('[data-act="enq"]').addEventListener("click", function () { NBG.enquire("viewing", u.id); });
+    info.querySelector('[data-act="availability"]').addEventListener("click", function () { NBG.enquire("general", u.id, availabilityMessage(u)); });
   }
 
   /* ---- full-screen unit viewer ---- */
@@ -687,16 +716,18 @@ window.NBG_CONFIG = {
       setTimeout(function () { var h = $(".pz-hint", viewer); if (h) h.style.opacity = 0; }, 4500);
     }
     var legend = u.legend && u.legend.length ? '<h3>Room arrangement</h3><ol>' + u.legend.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join("") + '</ol>' : "";
-    side.innerHTML = '<h3>' + esc(u.name) + '</h3>' + specHTML(u) + (u.pending ? '<p class="pending-note"><strong>To be confirmed:</strong> ' + esc(u.pending) + '</p>' : "") + legend +
+    side.innerHTML = '<h3>' + esc(u.name) + '</h3>' + specHTML(u) + (u.pending ? '<p class="pending-note"><strong>To be confirmed:</strong> ' + esc(u.pending) + '</p>' : "") + availabilityHTML() + legend +
       '<h3>Switch configuration</h3><div class="size-row" style="margin-bottom:8px">' + D.units.map(function (x) { return '<button class="size-chip" type="button" data-u="' + x.id + '" aria-selected="' + (x.id === u.id) + '" style="min-width:0;padding:8px 12px"><b style="font-size:20px">' + x.sqm + '<small>sqm</small></b><span>' + (x.layoutOnly ? "3 bed" : x.code) + '</span></button>'; }).join("") + '</div>' +
-      '<div class="stage-actions"><button class="btn btn-gold" type="button" data-act="enq">Request a viewing</button>' + NBG.shortlist.heart(u.id) + '<button class="btn btn-ghost btn-sm" type="button" data-act="share">Share</button><a class="btn btn-ghost btn-sm" data-act="dl" href="' + u.plan + '" download="ocean-mist-' + u.id + '-floor-plan.webp">Download plan</a></div>';
+      '<div class="stage-actions"><button class="btn btn-gold" type="button" data-act="enq">Request a viewing</button><button class="btn btn-ghost btn-sm" type="button" data-act="availability">Ask about availability</button>' + NBG.shortlist.heart(u.id) + '<button class="btn btn-ghost btn-sm" type="button" data-act="share">Share</button><a class="btn btn-ghost btn-sm" data-act="dl" href="' + u.plan + '" download="ocean-mist-' + u.id + '-floor-plan.webp">Download plan</a></div>';
     var sh = $('[data-act="share"]', side); sh.addEventListener("click", function () { var url = location.origin + location.pathname + "#residence-" + u.id, data = { title: u.name + " — Ocean Mist Tower", url: url }; if (navigator.share) navigator.share(data).catch(function () {}); else if (navigator.clipboard) navigator.clipboard.writeText(url).then(function () { sh.textContent = "Link copied"; setTimeout(function () { sh.textContent = "Share"; }, 1800); }, function () {}); });
     $$("[data-u]", side).forEach(function (b) { b.addEventListener("click", function () { dState.id = b.getAttribute("data-u"); renderDialog(); }); });
     $('[data-act="enq"]', side).addEventListener("click", function () { closeUnit(); NBG.enquire("viewing", u.id); });
+    $('[data-act="availability"]', side).addEventListener("click", function () { closeUnit(); NBG.enquire("general", u.id, availabilityMessage(u)); });
   }
 
   function openUnit(id, view, fromHash) {
     dState.id = id; dState.view = view || "plan";
+    if (NBG.analytics) NBG.analytics.track("unit_detail_view", { unitId: id });
     renderDialog();
     if (dlg.hidden) { NBG.openModal(dlg, "[data-close]"); document.addEventListener("keydown", esc2); }
     if (!fromHash) { history.pushState({ unit: id }, "", "#residence-" + id); pushed = true; }
@@ -921,6 +952,110 @@ window.NBG_CONFIG = {
 })();
 
 
+/* optional first-party analytics; sends only after consent and never includes form fields */
+(function () {
+  var NBG = window.NBG, $ = NBG.$;
+  var endpoint = "", consentKey = "nbg-analytics-consent", allowed = false;
+
+  function readConsent() {
+    try { return localStorage.getItem(consentKey); }
+    catch (error) { console.error("Could not read analytics consent.", error); return ""; }
+  }
+
+  function saveConsent(value) {
+    try { localStorage.setItem(consentKey, value); }
+    catch (error) { console.error("Could not save analytics consent.", error); }
+  }
+
+  function track(name, details) {
+    if (!allowed || !endpoint || !/^[a-z_]+$/.test(name)) return;
+    var payload = {
+      event: name,
+      path: location.pathname,
+      unitId: details && /^[a-z0-9-]+$/.test(details.unitId || "") ? details.unitId : undefined,
+      occurredAt: new Date().toISOString()
+    };
+    fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(payload),
+      keepalive: true
+    }).then(function (response) {
+      if (!response.ok) throw new Error("HTTP " + response.status);
+    }).catch(function (error) {
+      console.error("Could not record an NBG analytics event.", error);
+    });
+  }
+
+  NBG.analytics = {
+    track: track,
+    init: function () {
+      var configured = NBG.cfg.analytics && NBG.cfg.analytics.endpoint, panel = $("#analytics-consent"), settings = $("#analytics-settings");
+      if (!configured || !panel) return;
+      try {
+        var target = new URL(configured, location.origin);
+        if (target.origin !== location.origin) {
+          console.error("Analytics endpoint must be on this website's origin.");
+          return;
+        }
+        endpoint = target.href;
+      } catch (error) {
+        console.error("Invalid NBG analytics endpoint.", error);
+        return;
+      }
+
+      var preference = readConsent();
+      if (preference === "granted") allowed = true;
+      else if (preference !== "denied") panel.hidden = false;
+      if (settings) {
+        settings.hidden = false;
+        settings.addEventListener("click", function () {
+          panel.hidden = false;
+          $("[data-analytics-consent]", panel).focus();
+        });
+      }
+
+      panel.addEventListener("click", function (event) {
+        var button = event.target.closest("[data-analytics-consent]");
+        if (!button) return;
+        var choice = button.getAttribute("data-analytics-consent");
+        allowed = choice === "granted";
+        saveConsent(choice);
+        panel.hidden = true;
+        if (settings) settings.focus();
+        if (allowed) track("analytics_consent", {});
+      });
+
+      document.addEventListener("click", function (event) {
+        var link = event.target.closest("[data-analytics-event]");
+        if (link) track(link.getAttribute("data-analytics-event"), {});
+        if (event.target.closest("[data-enquire]")) track("enquiry_cta", {});
+      });
+    }
+  };
+})();
+
+/* mobile conversion actions stay clear of the enquiry form and floating contact control */
+(function () {
+  var NBG = window.NBG, $ = NBG.$;
+  NBG.mobileCta = {
+    init: function () {
+      var bar = $("#mobile-conversion-bar"), enquire = $("#enquire");
+      if (!bar || !enquire) return;
+      function update() {
+        var rect = enquire.getBoundingClientRect();
+        var show = innerWidth <= 640 && scrollY > innerHeight * 0.6 && !(rect.top < innerHeight && rect.bottom > 0);
+        bar.hidden = !show;
+        bar.classList.toggle("is-visible", show);
+        document.body.classList.toggle("has-mobile-conversion-bar", show);
+      }
+      addEventListener("scroll", update, { passive: true });
+      addEventListener("resize", update);
+      update();
+    }
+  };
+})();
+
 /* forms.js — validated enquiry forms with a configurable endpoint (never fakes success) */
 (function () {
   var NBG = window.NBG, $ = NBG.$, $$ = NBG.$$, esc = NBG.esc;
@@ -983,7 +1118,11 @@ window.NBG_CONFIG = {
     var ctl = new AbortController(), to = setTimeout(function () { ctl.abort(); }, 15000);
     fetch(ep, { method: NBG.cfg.forms.method || "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(data), signal: ctl.signal })
       .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r; })
-      .then(function () { form.reset(); status(form, "ok", "<strong>Thank you, " + esc(data.name.split(" ")[0]) + ".</strong> Your enquiry has been received. A member of the Next Bridge Group property team will be in touch."); })
+      .then(function () {
+        form.reset();
+        status(form, "ok", "<strong>Thank you, " + esc(data.name.split(" ")[0]) + ".</strong> Your enquiry has been received. A member of the Next Bridge Group property team will be in touch.");
+        if (NBG.analytics) NBG.analytics.track("enquiry_submitted", { unitId: data.configuration });
+      })
       .catch(function () {
         var mail = NBG.mailLink("Ocean Mist Tower — " + data.formType, text), wa = NBG.waLink("Hello Next Bridge Group, I am interested in Ocean Mist Tower.\n\n" + text);
         status(form, "bad", "<strong>We couldn’t send your enquiry.</strong> Please check your connection and try again." + ((mail || wa) ? '<div class="row">' + (mail ? '<a href="' + mail + '">Email us</a>' : "") + (wa ? '<a href="' + wa + '" target="_blank" rel="noopener">WhatsApp us</a>' : "") + "</div>" : ""));
@@ -1002,6 +1141,7 @@ window.NBG_CONFIG = {
       document.addEventListener("click", function (e) { var a = e.target.closest("[data-enquire]"); if (a) select(a.getAttribute("data-enquire")); });
       NBG.enquire = function (type, unitId, msg) {
         select(type || "viewing");
+        if (NBG.analytics) NBG.analytics.track("enquiry_cta", { unitId: unitId });
         var sel = $(type === "general" ? "#g-config" : "#v-config"); if (sel && unitId) sel.value = unitId;
         if (msg) { var ta = $(type === "general" ? "#g-msg" : "#v-msg"); if (ta) ta.value = msg; }
         var t = document.getElementById("enquire"); t.scrollIntoView({ behavior: NBG.reduced ? "auto" : "smooth" });
@@ -1280,7 +1420,7 @@ window.NBG_CONFIG = {
 /* main.js — boot. Each module is isolated so one failure never blocks the page. */
 (function () {
   var NBG = window.NBG;
-   ["loader", "fx", "lightbox", "shortlist", "residences", "tour", "sections", "forms", "film", "clips", "daylight", "building", "planner", "motion"].forEach(function (m) {
+   ["loader", "fx", "lightbox", "shortlist", "residences", "tour", "sections", "forms", "analytics", "mobileCta", "film", "clips", "daylight", "building", "planner", "motion"].forEach(function (m) {
     try { NBG[m].init(); } catch (e) { if (window.console) console.error("[NBG] module failed:", m, e); }
   });
   /* the floating WhatsApp control falls back to the enquiry form until a number is configured */

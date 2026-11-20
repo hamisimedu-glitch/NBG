@@ -116,7 +116,7 @@
           <div class="intro-actions reveal">
             <a class="btn btn-gold" href="#residences">Explore the project</a>
             <a class="link-arrow" href="#tour">Step inside <span aria-hidden="true">→</span></a>
-            <a class="btn btn-ghost btn-sm" href="/ocean-mist-brochure.pdf" type="application/pdf" download="ocean-mist-tower-brochure.pdf">Download brochure (PDF)</a>
+            <a class="btn btn-ghost btn-sm" href="/ocean-mist-brochure.pdf" type="application/pdf" download="ocean-mist-tower-brochure.pdf" data-analytics-event="brochure_download">Download brochure (PDF)</a>
           </div>
         </div>
         <div class="intro-art">
@@ -241,7 +241,7 @@
 
         <div class="cat-cards" id="cat-cards" role="tablist" aria-label="Residence categories"></div>
 
-        <div class="explorer" id="explorer" aria-live="polite">
+        <div class="explorer" id="explorer" role="tabpanel" tabindex="0" aria-labelledby="cat-tab-1bed" aria-live="polite">
           <div class="size-row" id="size-row" role="tablist" aria-label="Apartment sizes"></div>
           <div class="stage">
             <div class="stage-media" id="stage-media"></div>
@@ -430,7 +430,18 @@
             <article class="pillar reveal" style="--d:200ms"><h3>Commitment to quality</h3><p>Warm timber, calm palettes and considered detailing throughout the residences.</p></article>
             <article class="pillar reveal" style="--d:300ms"><h3>Customer experience</h3><p>A dedicated property team to guide you through viewings, layouts and next steps.</p></article>
           </div>
-          <p class="placeholder-note reveal">Company history, completed projects and credentials will be added here once supplied by Next Bridge Group.</p>
+          <aside class="project-transparency reveal" aria-label="Project information and confirmations">
+            <div>
+              <p class="eyebrow"><span class="line"></span>Clear information</p>
+              <h3>Know what is confirmed.</h3>
+              <p>Layouts, sizes and listed features are drawn from the Ocean Mist Tower brochure. Visuals are illustrative and areas are indicative.</p>
+            </div>
+            <ul>
+              <li><strong>Confirm directly with NBG:</strong> current availability, pricing, floor allocation, completion timing and contract terms.</li>
+              <li><strong>Company credentials:</strong> history, completed projects and certifications will be published when verified details are available.</li>
+            </ul>
+            <a class="link-arrow" href="/ocean-mist-brochure.pdf" type="application/pdf">Review the project brochure <span aria-hidden="true">↗</span></a>
+          </aside>
         </div>
       </div>
     </section>
@@ -503,7 +514,7 @@
       </div>
       <div>
         <h3>Company</h3>
-        <ul><li><a href="#about">About NBG</a></li><li><a href="#enquire">Contact</a></li><li><a href="privacy.html">Privacy policy</a></li><li><a href="terms.html">Terms &amp; conditions</a></li></ul>
+        <ul><li><a href="#about">About NBG</a></li><li><a href="#enquire">Contact</a></li><li><a href="privacy.html">Privacy policy</a></li><li><a href="terms.html">Terms &amp; conditions</a></li><li><button type="button" class="footer-settings" id="analytics-settings" hidden>Analytics settings</button></li></ul>
       </div>
       <div>
         <h3>Reach us</h3>
@@ -523,6 +534,22 @@
       <p>Images are artist’s impressions from the Ocean Mist brochure. Specifications may vary.</p>
     </div>
   </footer>
+
+  <div class="mobile-conversion-bar" id="mobile-conversion-bar" role="group" aria-label="Quick property actions" hidden>
+    <a class="mobile-conversion-explore" href="#residences">Explore homes</a>
+    <a class="mobile-conversion-enquire" href="#enquire" data-enquire="viewing">Request a viewing</a>
+  </div>
+
+  <aside class="analytics-consent" id="analytics-consent" role="region" aria-labelledby="analytics-consent-title" hidden>
+    <div>
+      <h2 id="analytics-consent-title">Optional website analytics</h2>
+      <p>If enabled, NBG records event names, page paths, residence IDs when relevant and event times only. Enquiry form details are never included. Your choice is saved on this browser.</p>
+    </div>
+    <div class="analytics-consent-actions">
+      <button type="button" data-analytics-consent="granted">Allow analytics</button>
+      <button type="button" data-analytics-consent="denied">No thanks</button>
+    </div>
+  </aside>
 
   <!-- floating WhatsApp / enquiry control -->
   <a class="wa-float" id="wa-float" href="#enquire" aria-label="Chat with Next Bridge Group on WhatsApp">
