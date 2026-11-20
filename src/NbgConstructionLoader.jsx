@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import './NbgConstructionLoader.css'
 
 const floors = Array.from({ length: 9 }, (_, index) => index)
@@ -7,6 +7,14 @@ function NbgConstructionLoader() {
   const [progress, setProgress] = useState(0)
   const [leaving, setLeaving] = useState(false)
   const [visible, setVisible] = useState(true)
+  const buildingRef = useRef(null)
+  const previewMode = new URLSearchParams(window.location.search).get('loaderPreview') === '1'
+
+  useLayoutEffect(() => {
+    buildingRef.current?.querySelectorAll('path').forEach((path) => {
+      path.setAttribute('pathLength', '1')
+    })
+  }, [])
 
   useEffect(() => {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -18,8 +26,8 @@ function NbgConstructionLoader() {
       const ratio = reducedMotion ? 1 : Math.min(elapsed / 2330, 1)
       setProgress(Math.floor(ratio * 100))
 
-      if (elapsed >= (reducedMotion ? 250 : 3500)) setLeaving(true)
-      if (elapsed >= (reducedMotion ? 700 : 4000)) {
+      if (!previewMode && elapsed >= (reducedMotion ? 250 : 3500)) setLeaving(true)
+      if (!previewMode && elapsed >= (reducedMotion ? 700 : 4000)) {
         setVisible(false)
         return
       }
@@ -29,7 +37,7 @@ function NbgConstructionLoader() {
 
     frame = requestAnimationFrame(update)
     return () => cancelAnimationFrame(frame)
-  }, [])
+  }, [previewMode])
 
   if (!visible) return null
 
@@ -40,6 +48,7 @@ function NbgConstructionLoader() {
     >
       <div className="nbg-loader__content">
         <svg
+          ref={buildingRef}
           className="nbg-loader__building"
           viewBox="0 0 480 490"
           role="img"
