@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { legacyAssets } from './legacy-assets.js'
 import markup from './legacy-markup.html?raw'
+import NbgConstructionLoader from './NbgConstructionLoader.jsx'
 import './legacy.css'
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
   return (
     <>
       <div dangerouslySetInnerHTML={{ __html: markup }} />
+      <NbgConstructionLoader />
       {runtimeError && (
         <p className="runtime-error" role="alert">
           The website could not finish loading: {runtimeError}
