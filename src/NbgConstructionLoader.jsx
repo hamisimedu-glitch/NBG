@@ -2,12 +2,16 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import './NbgConstructionLoader.css'
 
 const floors = Array.from({ length: 9 }, (_, index) => index)
+const DRAW_DURATION = 2600
+const FADE_DURATION = 400
+const READY_TIMEOUT = 3500
 
-function NbgConstructionLoader() {
+function NbgConstructionLoader({ ready }) {
   const [progress, setProgress] = useState(0)
   const [leaving, setLeaving] = useState(false)
   const [visible, setVisible] = useState(true)
   const buildingRef = useRef(null)
+  const readyRef = useRef(ready)
   const previewMode = new URLSearchParams(window.location.search).get('loaderPreview') === '1'
 
   useLayoutEffect(() => {
@@ -17,18 +21,24 @@ function NbgConstructionLoader() {
   }, [])
 
   useEffect(() => {
+    readyRef.current = ready
+  }, [ready])
+
+  useEffect(() => {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const startedAt = performance.now()
     let frame = 0
+    let hideTimer = 0
 
     const update = (now) => {
       const elapsed = now - startedAt
-      const ratio = reducedMotion ? 1 : Math.min(elapsed / 2330, 1)
+      const ratio = reducedMotion ? 1 : Math.min(elapsed / DRAW_DURATION, 1)
       setProgress(Math.floor(ratio * 100))
 
-      if (!previewMode && elapsed >= (reducedMotion ? 250 : 3500)) setLeaving(true)
-      if (!previewMode && elapsed >= (reducedMotion ? 700 : 4000)) {
-        setVisible(false)
+      if (!previewMode && (readyRef.current || elapsed >= READY_TIMEOUT) && (reducedMotion || elapsed >= DRAW_DURATION)) {
+        setProgress(100)
+        setLeaving(true)
+        hideTimer = window.setTimeout(() => setVisible(false), FADE_DURATION)
         return
       }
 
@@ -36,7 +46,10 @@ function NbgConstructionLoader() {
     }
 
     frame = requestAnimationFrame(update)
-    return () => cancelAnimationFrame(frame)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.clearTimeout(hideTimer)
+    }
   }, [previewMode])
 
   if (!visible) return null
@@ -88,7 +101,7 @@ function NbgConstructionLoader() {
 
             {floors.map((index) => {
               const slabY = 344 - index * 30
-              const delay = 610 + index * 130
+              const delay = 420 + index * 105
 
               return (
                 <g
@@ -124,7 +137,7 @@ function NbgConstructionLoader() {
               )
             })}
 
-            <g className="nbg-loader__draw nbg-loader__roof" style={{ animationDelay: '1970ms' }}>
+            <g className="nbg-loader__draw nbg-loader__roof" style={{ animationDelay: '1600ms' }}>
               <path d="M119 74H322L357 56M119 74V83M322 74L357 56V65M124 83H322L352 68" />
               <path d="M132 74V68H147V74M299 74V68H314V74" />
               <path d="M157 66H283M164 62H276" stroke="#087F85" strokeWidth="0.9" />

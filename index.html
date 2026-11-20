@@ -6,6 +6,11 @@
   <title>Ocean Mist Tower, Nyali Mombasa — Luxury Apartments by Next Bridge Group</title>
   <meta name="description" content="Ocean Mist Tower is a contemporary residential development on Bandari Road, Nyali, Mombasa by Next Bridge Group Limited. Explore 1, 2 and 3-bedroom residences, floor plans, amenities and location.">
   <meta name="theme-color" content="#0B2430">
+  <link rel="canonical" href="https://nbg-wheat.vercel.app/">
+  <link rel="preload" as="image" href="/images/exterior/ocean-mist-hero.webp"
+    imagesrcset="/images/exterior/ocean-mist-hero-400.webp 400w, /images/exterior/ocean-mist-hero-800.webp 800w, /images/exterior/ocean-mist-hero-1600.webp 1600w, /images/exterior/ocean-mist-hero.webp 2400w"
+    imagesizes="100vw" fetchpriority="high">
+  <link rel="preload" as="script" href="/legacy-runtime.js" fetchpriority="high">
   <link rel="icon" type="image/png" href="/images/brand/nbg-logo.png">
   <link rel="apple-touch-icon" href="/images/brand/nbg-logo.png">
 
@@ -16,14 +21,15 @@
   <meta property="og:site_name" content="Next Bridge Group Limited">
   <meta property="og:title" content="Ocean Mist Tower — Nyali, Mombasa">
   <meta property="og:description" content="Where the ocean meets your way of living. Discover Ocean Mist Tower by Next Bridge Group Limited.">
-  <meta property="og:image" content="https://www.example.com/assets/img/brand/og-image.jpg">
-  <meta property="og:url" content="https://www.example.com/">
+  <meta property="og:url" content="https://nbg-wheat.vercel.app/">
+  <meta property="og:image" content="https://nbg-wheat.vercel.app/images/exterior/ocean-mist-hero.webp">
   <meta name="twitter:card" content="summary_large_image">
 
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Manrope:wght@300;400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet"></noscript>
   <script>document.documentElement.classList.add("js")</script>
 
 
@@ -33,18 +39,18 @@
     "@graph": [
       {
         "@type": "Organization",
-        "@id": "https://www.example.com/#org",
+        "@id": "https://nbg-wheat.vercel.app/#org",
         "name": "Next Bridge Group Limited",
         "slogan": "Connecting You To Your New Home",
-        "logo": "https://www.example.com/images/brand/nbg-logo.png",
+        "logo": "https://nbg-wheat.vercel.app/images/brand/nbg-logo.png",
         "address": { "@type": "PostalAddress", "streetAddress": "Bandari Road, Nyali", "addressLocality": "Mombasa", "addressCountry": "KE" }
       },
       {
         "@type": "ApartmentComplex",
-        "@id": "https://www.example.com/#ocean-mist",
+        "@id": "https://nbg-wheat.vercel.app/#ocean-mist",
         "name": "Ocean Mist Tower",
         "description": "A contemporary residential development of one, two and three-bedroom apartments in Nyali, Mombasa.",
-        "image": "https://www.example.com/assets/img/brand/og-image.jpg",
+        "image": "https://nbg-wheat.vercel.app/images/exterior/ocean-mist-hero.webp",
         "address": { "@type": "PostalAddress", "streetAddress": "Bandari Road, Nyali", "addressLocality": "Mombasa", "addressCountry": "KE" },
         "amenityFeature": [
           { "@type": "LocationFeatureSpecification", "name": "Rooftop restaurant", "value": true },
@@ -54,7 +60,7 @@
           { "@type": "LocationFeatureSpecification", "name": "Parking", "value": true },
           { "@type": "LocationFeatureSpecification", "name": "CCTV and 24-hour security", "value": true }
         ],
-        "builder": { "@id": "https://www.example.com/#org" }
+        "builder": { "@id": "https://nbg-wheat.vercel.app/#org" }
       }
     ]
   }

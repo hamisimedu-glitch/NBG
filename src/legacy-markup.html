@@ -80,7 +80,7 @@
       <div class="hero-media" data-parallax="0.18">
         <img class="hero-img" data-k="exterior/ocean-mist-hero.webp" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
 
-             width="2400" height="1800" fetchpriority="high"
+             width="2400" height="1800" loading="eager" decoding="async" fetchpriority="high"
              alt="Architectural render of Ocean Mist Tower, a cream and white residential tower in Nyali, Mombasa">
       </div>
       <div class="hero-veil" aria-hidden="true"></div>
@@ -144,14 +144,14 @@
         </div>
         <div class="stat reveal" style="--d:240ms">
           <p class="stat-num"><span data-count="7">7</span></p>
-          <p class="stat-label">Detailed unit floor plans in the brochure</p>
+          <p class="stat-label">Detailed residence floor plans</p>
         </div>
         <div class="stat reveal" style="--d:360ms">
           <p class="stat-num"><span data-count="8">8</span></p>
           <p class="stat-label">Listed amenities and features</p>
         </div>
       </div>
-      <p class="wrap stats-note">Figures are drawn from the Ocean Mist Tower brochure. Availability, pricing and completion information are provided on enquiry.</p>
+      <p class="wrap stats-note">For current availability, pricing and delivery information, please contact the NBG team.</p>
     </section>
 
 
@@ -169,7 +169,7 @@
         </header>
       </div>
       <div class="film-stage" id="film-stage">
-        <video class="film-video" id="film-video" controls playsinline preload="metadata" width="1920" height="1080" poster="/videos/ocean-mist-poster.jpg?v=full" aria-label="Ocean Mist Tower project film">
+        <video class="film-video" id="film-video" controls playsinline preload="none" width="1920" height="1080" data-poster="/videos/ocean-mist-poster.webp" aria-label="Ocean Mist Tower project film">
           <source src="/videos/ocean-mist-tower.mp4?v=full" type="video/mp4">
           <p>Your browser does not support video playback. <a href="/videos/ocean-mist-tower.mp4?v=full">Download the film.</a></p>
         </video>
@@ -195,7 +195,7 @@
           <input class="range" id="day-range" type="range" min="0" max="1439" step="1" value="0" aria-label="Local time in Nyali, Mombasa">
           <div class="preset-row" id="day-presets"></div>
           <p class="day-mode" id="day-mode" aria-live="polite">Live local time · Nyali, Mombasa (EAT)</p>
-          <p class="fineprint">The sun’s position follows an astronomical estimate for Nyali, Mombasa. The render’s colour grade remains illustrative, not a real-time building render.</p>
+          <p class="fineprint">The lighting preview estimates the sun’s position using local time in Nyali, Mombasa.</p>
         </div>
       </div>
     </section>
@@ -211,16 +211,15 @@
       <div class="life-grid wrap">
         <figure class="life life-a reveal life-broadcast" data-broadcast-clip>
           <div class="section-film-frame life-film-frame">
-            <video class="section-film-video" data-broadcast-video controls muted loop playsinline preload="none" width="1280" height="720" poster="/videos/ocean-mist-lifestyle-poster.jpg" aria-label="Waiting lounge excerpt from the Ocean Mist Tower film"><source src="/videos/ocean-mist-lifestyle.mp4" type="video/mp4"><p>Your browser does not support video playback.</p></video>
+            <video class="section-film-video" data-broadcast-video controls muted loop playsinline preload="none" width="1280" height="720" data-poster="/videos/ocean-mist-lifestyle-poster.webp" aria-label="Waiting lounge at Ocean Mist Tower"><source src="/videos/ocean-mist-lifestyle.mp4" type="video/mp4"><p>Your browser does not support video playback.</p></video>
             <div class="section-film-vignette" aria-hidden="true"></div>
             <div class="section-film-brand" aria-hidden="true"><span class="section-film-mark"><img data-k="brand/nbg-logo.png" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" width="44" height="44" alt=""></span><span class="section-film-wordmark"><span>NEXT BRIDGE GROUP</span><span class="section-film-tag">PROJECT FILM</span></span></div>
-            <span class="section-film-time" aria-hidden="true">01:22 — 01:31</span>
             <p class="section-film-status" data-clip-status role="status" aria-live="polite"></p>
           </div>
-          <figcaption>Waiting lounge · film excerpt</figcaption>
+          <figcaption>Waiting lounge</figcaption>
         </figure>
         <figure class="life life-b mask-reveal"><img data-k="interior/dining-table.webp" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" width="2000" height="1500" loading="lazy" alt="Timber dining table with cream chairs"><figcaption>Dining</figcaption></figure>
-        <div class="life life-quote reveal"><p>Every inch considered, to deliver an atmosphere of calm and elegance.</p><span>— Ocean Mist brochure</span></div>
+        <div class="life life-quote reveal"><p>Every inch considered, to deliver an atmosphere of calm and elegance.</p></div>
         <figure class="life life-c mask-reveal"><img data-k="interior/kitchen-breakfast-bar.webp" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" width="1527" height="1270" loading="lazy" alt="Kitchen with breakfast bar and navy stools"><figcaption>Kitchen</figcaption></figure>
         <figure class="life life-d mask-reveal"><img data-k="interior/bathroom.webp" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" width="1800" height="1800" loading="lazy" alt="Bathroom with stone-look tiles and a floating vanity"><figcaption>Bathroom</figcaption></figure>
         <figure class="life life-e mask-reveal"><img data-k="exterior/ocean-mist-rooftop.webp" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" width="1162" height="872" loading="lazy" alt="Rooftop terrace of Ocean Mist Tower"><figcaption>Rooftop terrace</figcaption></figure>
@@ -248,7 +247,7 @@
             <div class="stage-info" id="stage-info"></div>
           </div>
         </div>
-        <p class="fineprint">Layouts are reproduced from the brochure. Dimensions and finishes are indicative; pricing, availability and delivery details are confirmed by Next Bridge Group on enquiry.</p>
+        <p class="fineprint">Floor areas are approximate and finishes may vary. Confirm current unit details, pricing and availability with NBG.</p>
       </div>
     </section>
 
@@ -261,7 +260,7 @@
             <p class="eyebrow reveal"><span class="line"></span>Explore the tower</p>
             <h2 class="display reveal" data-split>Floor by floor,<br><em>from ground to sky.</em></h2>
           </div>
-          <p class="lead reveal">Select a level to see the brochure layout for that part of the tower.</p>
+          <p class="lead reveal">Select a level to explore the layout of that part of the tower.</p>
         </header>
         <div class="bld-shell">
           <ol class="tower" id="tower" aria-label="Tower levels"></ol>
@@ -269,15 +268,14 @@
         </div>
         <figure class="section-film reveal" data-broadcast-clip>
           <div class="section-film-frame">
-            <video class="section-film-video" data-broadcast-video controls muted loop playsinline preload="none" width="1280" height="720" poster="/videos/ocean-mist-exterior-poster.jpg" aria-label="Exterior views from the Ocean Mist Tower film"><source src="/videos/ocean-mist-exterior.mp4" type="video/mp4"><p>Your browser does not support video playback.</p></video>
+            <video class="section-film-video" data-broadcast-video controls muted loop playsinline preload="none" width="1280" height="720" data-poster="/videos/ocean-mist-exterior-poster.webp" aria-label="Exterior views of Ocean Mist Tower"><source src="/videos/ocean-mist-exterior.mp4" type="video/mp4"><p>Your browser does not support video playback.</p></video>
             <div class="section-film-vignette" aria-hidden="true"></div>
             <div class="section-film-brand" aria-hidden="true"><span class="section-film-mark"><img data-k="brand/nbg-logo.png" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" width="44" height="44" alt=""></span><span class="section-film-wordmark"><span>NEXT BRIDGE GROUP</span><span class="section-film-tag">PROJECT FILM</span></span></div>
-            <span class="section-film-time" aria-hidden="true">00:12 — 00:21</span>
             <p class="section-film-status" data-clip-status role="status" aria-live="polite"></p>
           </div>
-          <figcaption class="section-film-copy"><small>Film excerpt · 00:12–00:21</small><strong>A closer look at the tower.</strong><span>Exterior views from the Ocean Mist Tower film.</span></figcaption>
+          <figcaption class="section-film-copy"><small>THE ARCHITECTURE</small><strong>A closer look at the tower.</strong><span>Explore the building's façade and surrounding landscape.</span></figcaption>
         </figure>
-        <p class="fineprint">Level information is read from the brochure’s ground-floor, typical 1st–9th floor, 10th-floor and roof-terrace layouts. Final floor allocations are confirmed by NBG.</p>
+        <p class="fineprint">Layouts illustrate the ground floor, typical residential floors, 10th floor and roof terrace. Confirm current floor allocations with NBG.</p>
       </div>
     </section>
 
@@ -332,7 +330,6 @@
             </div>
           </div>
         </div>
-        <p class="fineprint">Interior images are architectural visualisations from the brochure. No 360° panoramas or 3D walkthrough models have been supplied, so none are simulated here.</p>
       </div>
     </section>
 
@@ -344,7 +341,7 @@
             <p class="eyebrow reveal"><span class="line"></span>Architecture</p>
             <h2 class="display reveal" data-split>Composed for light,<br><em>air and horizon.</em></h2>
           </div>
-          <p class="lead reveal">Exterior renders, rooftop views, site overview and layouts from the project brochure. Open any image to explore full screen.</p>
+          <p class="lead reveal">Explore the tower's architecture, rooftop spaces, surroundings and residence layouts. Select any image to enlarge it.</p>
         </header>
         <div class="mosaic" id="mosaic"></div>
       </div>
@@ -358,18 +355,17 @@
             <p class="eyebrow reveal"><span class="line"></span>Amenities</p>
             <h2 class="display reveal" data-split>Everything<br><em>in its place.</em></h2>
           </div>
-          <p class="lead reveal">The facilities listed in the Ocean Mist brochure — designed for comfort, convenience and peace of mind.</p>
+          <p class="lead reveal">Thoughtfully planned facilities for comfort, convenience and peace of mind.</p>
         </header>
         <div class="amen-grid" id="amen-grid"></div>
         <figure class="section-film reveal" data-broadcast-clip>
           <div class="section-film-frame">
-            <video class="section-film-video" data-broadcast-video controls muted loop playsinline preload="none" width="1280" height="720" poster="/videos/ocean-mist-rooftop-cafe-poster.jpg" aria-label="Rooftop café sequence from the Ocean Mist Tower film"><source src="/videos/ocean-mist-rooftop-cafe.mp4" type="video/mp4"><p>Your browser does not support video playback.</p></video>
+            <video class="section-film-video" data-broadcast-video controls muted loop playsinline preload="none" width="1280" height="720" data-poster="/videos/ocean-mist-rooftop-cafe-poster.webp" aria-label="Rooftop café at Ocean Mist Tower"><source src="/videos/ocean-mist-rooftop-cafe.mp4" type="video/mp4"><p>Your browser does not support video playback.</p></video>
             <div class="section-film-vignette" aria-hidden="true"></div>
             <div class="section-film-brand" aria-hidden="true"><span class="section-film-mark"><img data-k="brand/nbg-logo.png" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" width="44" height="44" alt=""></span><span class="section-film-wordmark"><span>NEXT BRIDGE GROUP</span><span class="section-film-tag">PROJECT FILM</span></span></div>
-            <span class="section-film-time" aria-hidden="true">01:01 — 01:09</span>
             <p class="section-film-status" data-clip-status role="status" aria-live="polite"></p>
           </div>
-          <figcaption class="section-film-copy"><small>Film excerpt · 01:01–01:09</small><strong>Rooftop café.</strong><span>A closer look at the café and shared spaces featured in the project film.</span></figcaption>
+          <figcaption class="section-film-copy"><small>ROOFTOP LIVING</small><strong>Rooftop café.</strong><span>A closer look at the café and shared spaces.</span></figcaption>
         </figure>
       </div>
     </section>
@@ -383,33 +379,47 @@
         </header>
         <div class="loc-grid">
           <div class="loc-copy">
-            <p class="lead reveal">Ocean Mist sits on Bandari Road in Nyali — a coastal neighbourhood where schools, shopping, healthcare, golf and the beach are all within minutes. The brochure describes the tower as positioned above the beach, with panoramic views of the Indian Ocean.</p>
+            <p class="lead reveal">Ocean Mist is located on Bandari Road in Nyali, Mombasa, close to neighbourhood amenities and the Indian Ocean.</p>
             <div class="loc-filter" id="loc-filter" role="group" aria-label="Filter nearby places"></div>
             <ul class="loc-list" id="loc-list"></ul>
-            <p class="fineprint">Distances and travel times are approximate estimates from the Ocean Mist brochure, not guaranteed journey times or live directions.</p>
+            <p class="fineprint">Distances and travel times are approximate and may vary by route and traffic.</p>
             <a class="btn btn-ghost" id="maps-link" href="#" target="_blank" rel="noopener">Open in Google Maps <span aria-hidden="true">↗</span></a>
           </div>
           <figure class="loc-map mask-reveal" id="loc-map">
-            <div class="map-frame" id="map-frame" tabindex="0" aria-label="Brochure location map. Use the zoom buttons or drag to pan.">
-              <img data-k="location/brochure-location-map-800.webp" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" width="2402" height="1717" loading="lazy" alt="Brochure map of Nyali showing Ocean Mist Tower, Links Road, Nyali Golf and Country Club, Mamba Village and the coastline" draggable="false">
+            <div class="map-toolbar">
+              <span class="map-live-badge"><i aria-hidden="true"></i><span id="map-live-label">GOOGLE MAPS</span></span>
+              <div class="map-layer-controls" id="map-layer-controls" role="group" aria-label="Map layers" hidden>
+                <button type="button" data-map-layer="roadmap" aria-pressed="true">Map</button>
+                <button type="button" data-map-layer="satellite" aria-pressed="false">Satellite</button>
+                <button type="button" data-map-layer="hybrid" aria-pressed="false">Hybrid</button>
+                <button type="button" data-map-layer="terrain" aria-pressed="false">Terrain</button>
+                <button type="button" data-map-layer="traffic" aria-pressed="false">Traffic</button>
+                <button type="button" data-map-layer="transit" aria-pressed="false">Transit</button>
+              </div>
             </div>
-            <div class="map-controls">
-              <button type="button" class="icon-btn" data-map="in" aria-label="Zoom in">+</button>
-              <button type="button" class="icon-btn" data-map="out" aria-label="Zoom out">−</button>
-              <button type="button" class="icon-btn" data-map="reset" aria-label="Reset map">⟲</button>
+            <div class="map-frame" id="map-frame" role="region" aria-label="Interactive map of Ocean Mist Tower and nearby places">
+              <img class="map-poster" id="map-poster" data-k="location/brochure-location-map-800.webp" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" width="800" height="572" loading="lazy" alt="Illustrative location map of Nyali showing Ocean Mist Tower and nearby landmarks" draggable="false">
+              <div class="google-map" id="google-map" role="application" aria-label="Google map" hidden></div>
+              <div class="map-embed" id="map-embed" hidden></div>
+              <p class="map-status" id="map-status" role="status" aria-live="polite">Preparing interactive map…</p>
+              <div class="map-controls" id="map-controls" role="group" aria-label="Map controls" hidden>
+                <button type="button" class="icon-btn" data-map="in" aria-label="Zoom in">+</button>
+                <button type="button" class="icon-btn" data-map="out" aria-label="Zoom out">−</button>
+                <button type="button" class="icon-btn" data-map="reset" aria-label="Reset map view">⟲</button>
+                <button type="button" class="icon-btn" data-map="locate" aria-label="Show my location">◎</button>
+              </div>
             </div>
-            <figcaption>Map from the Ocean Mist brochure. Not to scale.</figcaption>
+            <figcaption id="map-caption">Open Google Maps for directions and current travel conditions.</figcaption>
           </figure>
         </div>
         <figure class="section-film reveal" data-broadcast-clip>
           <div class="section-film-frame">
-            <video class="section-film-video" data-broadcast-video controls muted loop playsinline preload="none" width="1280" height="720" poster="/videos/ocean-mist-location-poster.jpg" aria-label="Aerial view of Ocean Mist Tower from the project film"><source src="/videos/ocean-mist-location.mp4" type="video/mp4"><p>Your browser does not support video playback.</p></video>
+            <video class="section-film-video" data-broadcast-video controls muted loop playsinline preload="none" width="1280" height="720" data-poster="/videos/ocean-mist-location-poster.webp" aria-label="Aerial view of Ocean Mist Tower and its surroundings"><source src="/videos/ocean-mist-location.mp4" type="video/mp4"><p>Your browser does not support video playback.</p></video>
             <div class="section-film-vignette" aria-hidden="true"></div>
             <div class="section-film-brand" aria-hidden="true"><span class="section-film-mark"><img data-k="brand/nbg-logo.png" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" width="44" height="44" alt=""></span><span class="section-film-wordmark"><span>NEXT BRIDGE GROUP</span><span class="section-film-tag">PROJECT FILM</span></span></div>
-            <span class="section-film-time" aria-hidden="true">00:55 — 01:01</span>
             <p class="section-film-status" data-clip-status role="status" aria-live="polite"></p>
           </div>
-          <figcaption class="section-film-copy"><small>Film excerpt · 00:55–01:01</small><strong>The site from above.</strong><span>A rendered aerial view of Ocean Mist Tower and its immediate surroundings.</span></figcaption>
+          <figcaption class="section-film-copy"><small>THE SETTING</small><strong>The site from above.</strong><span>Explore the tower and its surrounding neighbourhood from above.</span></figcaption>
         </figure>
       </div>
     </section>
@@ -433,12 +443,11 @@
           <aside class="project-transparency reveal" aria-label="Project information and confirmations">
             <div>
               <p class="eyebrow"><span class="line"></span>Clear information</p>
-              <h3>Know what is confirmed.</h3>
-              <p>Layouts, sizes and listed features are drawn from the Ocean Mist Tower brochure. Visuals are illustrative and areas are indicative.</p>
+              <h3>Project details.</h3>
+              <p>Visuals are architectural interpretations. Floor areas are approximate and finishes may vary.</p>
             </div>
             <ul>
-              <li><strong>Confirm directly with NBG:</strong> current availability, pricing, floor allocation, completion timing and contract terms.</li>
-              <li><strong>Company credentials:</strong> history, completed projects and certifications will be published when verified details are available.</li>
+              <li><strong>Before you decide:</strong> Confirm current availability, pricing, floor allocation, completion timing and contract terms with NBG.</li>
             </ul>
             <a class="link-arrow" href="/ocean-mist-brochure.pdf" type="application/pdf">Review the project brochure <span aria-hidden="true">↗</span></a>
           </aside>
@@ -514,7 +523,7 @@
       </div>
       <div>
         <h3>Company</h3>
-        <ul><li><a href="#about">About NBG</a></li><li><a href="#enquire">Contact</a></li><li><a href="privacy.html">Privacy policy</a></li><li><a href="terms.html">Terms &amp; conditions</a></li><li><button type="button" class="footer-settings" id="analytics-settings" hidden>Analytics settings</button></li></ul>
+        <ul><li><a href="#about">About NBG</a></li><li><a href="#enquire">Contact</a></li><li><button type="button" class="footer-settings" id="analytics-settings" hidden>Analytics settings</button></li></ul>
       </div>
       <div>
         <h3>Reach us</h3>
@@ -523,7 +532,6 @@
           <li id="f-phone-li" hidden><a id="f-phone" href="#"></a></li>
           <li id="f-email-li" hidden><a id="f-email" href="#"></a></li>
           <li id="f-wa-li" hidden><a id="f-wa" href="#" target="_blank" rel="noopener">WhatsApp</a></li>
-          <li id="f-contact-pending" class="muted">Phone and email details to be published by NBG.</li>
         </ul>
         <ul class="socials" id="socials" aria-label="Social media"></ul>
       </div>
@@ -531,7 +539,7 @@
     <p class="foot-statement">Where the ocean meets your way of living.</p>
     <div class="wrap foot-bottom">
       <p>© <span id="year">2026</span> Next Bridge Group Limited. All rights reserved.</p>
-      <p>Images are artist’s impressions from the Ocean Mist brochure. Specifications may vary.</p>
+      <p>Images are architectural visualisations. Finishes and specifications may vary.</p>
     </div>
   </footer>
 

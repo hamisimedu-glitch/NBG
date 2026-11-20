@@ -1,5 +1,47 @@
 /* Classic-script runtime retained to preserve the existing page behavior. */
-document.querySelectorAll("img[data-k]").forEach(function(i){i.src=window.__IMG[i.getAttribute("data-k")]})
+var NBG_IMAGE_WIDTHS = {
+  "ocean-mist-aerial-site.webp": 1800,
+  "ocean-mist-facade.webp": 1400,
+  "ocean-mist-front.webp": 1600,
+  "ocean-mist-hero.webp": 2400,
+  "ocean-mist-street.webp": 2000,
+  "bathroom.webp": 1800,
+  "dining-table.webp": 2000,
+  "kitchen-breakfast-bar.webp": 1527,
+  "living-lounge.webp": 2000,
+  "living-media-wall.webp": 2000,
+  "living-open-plan.webp": 2000,
+  "living-suite.webp": 2200
+};
+
+function nbgResponsiveSrcset(src) {
+  if (!src) return "";
+  var filename = src.slice(src.lastIndexOf("/") + 1);
+  if (filename === "brochure-location-map-800.webp") {
+    return src.replace("-800.webp", "-400.webp") + " 400w, " + src + " 800w";
+  }
+  var width = NBG_IMAGE_WIDTHS[filename];
+  if (!width) return "";
+  var base = src.slice(0, -5), candidates = [base + "-400.webp 400w", base + "-800.webp 800w"];
+  if (width > 1600) candidates.push(base + "-1600.webp 1600w");
+  candidates.push(src + " " + width + "w");
+  return candidates.join(", ");
+}
+
+function nbgPosterSrc(src) {
+  if (!src) return "";
+  var filename = src.slice(src.lastIndexOf("/") + 1);
+  return NBG_IMAGE_WIDTHS[filename] ? src.replace(".webp", "-800.webp") : src;
+}
+
+document.querySelectorAll("img[data-k]").forEach(function (image) {
+  var src = window.__IMG[image.getAttribute("data-k")], srcset = nbgResponsiveSrcset(src);
+  if (srcset) {
+    image.srcset = srcset;
+    image.sizes = image.classList.contains("hero-img") ? "100vw" : "(max-width: 900px) 100vw, 50vw";
+  }
+  image.src = src;
+});
 
 /* ==========================================================================
    NBG SITE CONFIGURATION — edit this file only to wire up real business data.
@@ -7,17 +49,20 @@ document.querySelectorAll("img[data-k]").forEach(function(i){i.src=window.__IMG[
    the site degrades honestly (hidden / explained) until it is filled in.
    ========================================================================== */
 window.NBG_CONFIG = {
-  siteUrl: "https://www.example.com",          // TODO(NBG): production domain (used for canonical, sitemap, OG)
+  siteUrl: window.location.origin,
   company: "Next Bridge Group Limited",
   project: "Ocean Mist Tower",
   tagline: "Connecting You To Your New Home",   // from the NBG logo lockup
 
   contact: {
     whatsappNumber: "",   // TODO(NBG): international format, digits only, e.g. "2547XXXXXXXX"
-    phone: "",            // TODO(NBG): display phone, e.g. "+254 7XX XXX XXX"
-    email: "",            // TODO(NBG): enquiries mailbox
-    addressLine: "Bandari Road, Nyali, Mombasa, Kenya", // from brochure
+    phone: "+254741121575",
+    email: "nextbridgegrouplimited@gmail.com",
+    addressLine: "Bandari Road, Nyali, Mombasa, Kenya",
     mapsQuery: "Ocean Mist Tower Bandari Road Nyali Mombasa" // search link only — no coordinates are asserted
+  },
+  maps: {
+    apiKey: window.__NBG_GOOGLE_MAPS_API_KEY || ""
   },
 
   /* Enquiry submissions. Any JSON-accepting endpoint works (Formspree, Getform,
@@ -41,7 +86,7 @@ window.NBG_CONFIG = {
 
 /* ==========================================================================
    PROJECT CONTENT — single source of truth for the interactive sections.
-   Source: "Ocean Mist Tower" 44-page brochure supplied by NBG.
+   Project reference: "Ocean Mist Tower" project information supplied by NBG.
    Anything NBG still needs to confirm is flagged in `pending` below.
    ========================================================================== */
 (function () {
@@ -66,13 +111,13 @@ window.NBG_CONFIG = {
         iso: __IMG["units3d/1bed-d-60sqm.webp"], isoAlt: "Three-dimensional cut-away layout of 1 Bedroom D",
         legend: ["Entry lobby","Dining","Kitchen","Utility / yard","WC / SH","Lounge","Bedroom 01","Balcony"],
         hero: __IMG["interior/living-lounge.webp"] },
-      { id: "1bed-c", cat: "1bed", code: "1C", name: "1 Bedroom C", sqm: 65, beds: "1 bedroom", baths: "1 bath",
+      { id: "1bed-c", cat: "1bed", code: "1C", name: "1 Bedroom C", sqm: 75, beds: "1 bedroom", baths: "1 bath",
         rooms: "Kitchen, dining / lounge, master bedroom, curved balcony",
-        plan: __IMG["plans/plan-1bed-c-65sqm.webp"], planAlt: "Floor plan of 1 Bedroom C, 65 square metres, showing bedroom, lounge and dining, kitchen, bath, lobby and curved balcony",
+        plan: __IMG["plans/plan-1bed-c-65sqm.webp"], planAlt: "Available floor plan image labelled 65 square metres for 1 Bedroom C; NBG confirms the residence is 75 square metres",
         iso: __IMG["units3d/1bed-c-65sqm.webp"], isoAlt: "Three-dimensional cut-away layout of 1 Bedroom C",
         legend: ["Entry lobby","Dining","Kitchen","Utility / yard","WC / SH","Lounge","Bedroom 01","Balcony"],
         hero: __IMG["interior/living-open-plan.webp"],
-        pending: "The brochure's 3D page for this layout is captioned 75 sqm while its plan page states 65 sqm. 65 sqm is used here; NBG to confirm." },
+        pending: "NBG confirms this residence is 75 sqm, but the available floor plan is marked 65 sqm. Request the corrected plan before purchase." },
       { id: "1bed-b", cat: "1bed", code: "1B", name: "1 Bedroom B", sqm: 75, beds: "1 bedroom", baths: "1 bath",
         rooms: "Kitchen, dining / lounge, master bedroom, balcony",
         plan: __IMG["plans/plan-1bed-b-75sqm.webp"], planAlt: "Floor plan of 1 Bedroom B, 75 square metres, showing bedroom, lounge and dining, kitchen, bath, lobby and balcony",
@@ -109,17 +154,17 @@ window.NBG_CONFIG = {
         rooms: "Shown on the 10th-floor typical layout",
         plan: __IMG["plans/typical-floor-10.webp"], planAlt: "Typical 10th-floor layout showing the 3 bedroom plus DSQ apartments at 160 and 190 square metres",
         iso: null, legend: [], hero: __IMG["exterior/ocean-mist-rooftop.webp"], layoutOnly: true,
-        pending: "A dedicated unit plan for this configuration was not included in the brochure. NBG to supply; the 10th-floor layout is shown." },
+        pending: "A typical 10th-floor layout is shown. Request a unit-specific plan from our team." },
       { id: "3bed-190", cat: "3bed", code: "3-190", name: "3 Bedroom + DSQ", sqm: 190, beds: "3 bedrooms + DSQ", baths: "—",
         rooms: "Shown on the 10th-floor typical layout",
         plan: __IMG["plans/typical-floor-10.webp"], planAlt: "Typical 10th-floor layout showing the 3 bedroom plus DSQ apartments at 160 and 190 square metres",
         iso: null, legend: [], hero: __IMG["exterior/ocean-mist-aerial-terrace.webp"], layoutOnly: true,
-        pending: "A dedicated unit plan for this configuration was not included in the brochure. NBG to supply; the 10th-floor layout is shown." }
+        pending: "A typical 10th-floor layout is shown. Request a unit-specific plan from our team." }
     ],
-    /* ---- Tower levels (from brochure layouts) ------------------------- */
+    /* ---- Tower level layouts ------------------------------------------ */
     levels: [
-      { id: "roof", label: "Roof terrace", range: "roof", plan: __IMG["plans/roof-terrace-layout.webp"], title: "Roof terrace", text: "The brochure’s roof-terrace layout shows landscaped outdoor areas and dining space, with the rooftop restaurant listed among the tower’s amenities.", tags: ["Rooftop restaurant", "Terrace"] },
-      { id: "10", label: "10th floor", range: "10", plan: __IMG["plans/typical-floor-10.webp"], title: "10th floor", text: "The 10th-floor layout is where the brochure places the 3-bedroom + DSQ homes (160 and 190 sqm), alongside further apartments.", tags: ["3 Bed + DSQ 160 / 190 sqm"] },
+      { id: "roof", label: "Roof terrace", range: "roof", plan: __IMG["plans/roof-terrace-layout.webp"], title: "Roof terrace", text: "Landscaped outdoor spaces and dining areas are planned for the rooftop terrace.", tags: ["Rooftop restaurant", "Terrace"] },
+      { id: "10", label: "10th floor", range: "10", plan: __IMG["plans/typical-floor-10.webp"], title: "10th floor", text: "The 10th-floor layout includes 3-bedroom homes with a domestic staff quarter, alongside additional apartments.", tags: ["3 Bed + DSQ 160 / 190 sqm"] },
       { id: "9", label: "9th floor", range: "1-9", plan: __IMG["plans/typical-floor-1-9.webp"], title: "Typical floor · 1st – 9th", text: "Floors 1 to 9 share one typical layout of one- and two-bedroom apartments, arranged around a central core with lifts.", tags: ["1 Bed 60–75 sqm", "2 Bed 125–160 sqm"] },
       { id: "8", label: "8th floor", range: "1-9" }, { id: "7", label: "7th floor", range: "1-9" }, { id: "6", label: "6th floor", range: "1-9" },
       { id: "5", label: "5th floor", range: "1-9" }, { id: "4", label: "4th floor", range: "1-9" }, { id: "3", label: "3rd floor", range: "1-9" },
@@ -127,7 +172,7 @@ window.NBG_CONFIG = {
       { id: "0", label: "Ground floor", range: "0", plan: __IMG["plans/ground-floor-layout.webp"], title: "Ground floor", text: "The ground-floor layout shows the arrival level with the parking arrangement. Reception and waiting area are listed among the project amenities.", tags: ["Parking", "Arrival"] }
     ],
 
-    /* ---- Step Inside rooms (brochure interior visualisations) --------- */
+    /* ---- Step Inside room visualisations ------------------------------ */
     rooms: [
       { id: "living", label: "Living room", title: "Quiet luxury, beckoning you to unwind.",
         text: "Every inch of the living space has been considered to deliver an atmosphere of calm and elegance — light tones, soft layers and warm timber.",
@@ -157,7 +202,7 @@ window.NBG_CONFIG = {
         images: [
           { src: __IMG["interior/bathroom.webp"], alt: "Bathroom with stone-look tiles, floating vanity and glass shower" } ] },
       { id: "rooftop", label: "Rooftop", title: "A terrace above the Nyali skyline.",
-        text: "The roof terrace brings the rooftop restaurant and landscaped outdoor space into the tower — the brochure's roof terrace layout shows dining and planted areas.",
+        text: "The roof terrace brings dining and landscaped outdoor space above the Nyali skyline.",
         images: [
           { src: __IMG["exterior/ocean-mist-rooftop.webp"], alt: "Rooftop terrace of Ocean Mist Tower with landscaping and the building signage" },
           { src: __IMG["exterior/ocean-mist-aerial-terrace.webp"], alt: "Aerial view of the Ocean Mist Tower roof terrace and surrounding roads" } ] }
@@ -175,7 +220,7 @@ window.NBG_CONFIG = {
       { src: __IMG["plans/typical-floor-1-9.webp"],    w: 2400, h: 1716, size: "plan",   cap: "Typical floor plan, floors 1–9", alt: "Colour-coded typical apartment layout for floors 1 to 9" }
     ],
 
-    /* ---- Amenities (brochure + NBG brief) ----------------------------- */
+    /* ---- Amenities ---------------------------------------------------- */
     amenities: [
       { id: "rooftop",   title: "Rooftop restaurant", text: "A dining destination above the tower, with outdoor terrace space shown on the roof layout.", icon: "roof",   img: __IMG["exterior/ocean-mist-rooftop.webp"] },
       { id: "lifts",     title: "High-speed lifts",   text: "Quick, quiet vertical access to every residence.", icon: "lift" },
@@ -184,10 +229,10 @@ window.NBG_CONFIG = {
       { id: "parking",   title: "Parking",            text: "Dedicated parking, laid out on the ground-floor plan.", icon: "car", img: __IMG["plans/ground-floor-layout.webp"] },
       { id: "reception", title: "Reception & waiting area", text: "A welcoming arrival point for residents and guests.", icon: "desk" },
       { id: "security",  title: "CCTV & 24-hour security",  text: "Round-the-clock security and camera coverage.", icon: "shield" },
-      { id: "lounge",    title: "Spacious lounge",    text: "A brochure feature: generous lounge space within the development.", icon: "sofa" }
+      { id: "lounge",    title: "Spacious lounge",    text: "A generous shared space for relaxing and gathering.", icon: "sofa" }
     ],
 
-    /* ---- Location (brochure distances, approximate) ------------------ */
+    /* ---- Nearby locations (approximate travel times) ----------------- */
     location: [
       { cat: "Education",     items: [ { n: "Deenway International School", t: "2 min", m: "walk" } ] },
       { cat: "Places of worship", items: [ { n: "Masjid Rahman", t: "2 min", m: "walk" } ] },
@@ -211,14 +256,12 @@ window.NBG_CONFIG = {
   NBG.reduced = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
   NBG.esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
 
-  /* images that ship an -800 responsive variant */
-  NBG.hasSmall = /a^/; var _unused = /(ocean-mist-(front|hero|facade|aerial-site|street)|brochure-location-map|kitchen-breakfast-bar|living-(open-plan|media-wall|suite|lounge)|dining-table|bathroom)\.webp$/;
   NBG.img = function (src, alt, o) {
     o = o || {};
     var s = '<img src="' + src + '"';
-    if (NBG.hasSmall.test(src) && !/-800\.webp$/.test(src) && o.w > 800) {
-      s += ' srcset="' + src.replace(".webp", "-800.webp") + ' 800w, ' + src + " " + o.w + 'w"';
-      if (o.sizes) s += ' sizes="' + o.sizes + '"';
+    var srcset = nbgResponsiveSrcset(src);
+    if (srcset) {
+      s += ' srcset="' + srcset + '" sizes="' + NBG.esc(o.sizes || "(max-width: 900px) 100vw, 50vw") + '"';
     }
     if (o.w) s += ' width="' + o.w + '"';
     if (o.h) s += ' height="' + o.h + '"';
@@ -464,7 +507,7 @@ window.NBG_CONFIG = {
 })();
 
 
-/* viewer.js — accessible pan / zoom for floor plans, 3D layouts and the location map */
+/* viewer.js — accessible pan / zoom for floor plans and 3D layouts */
 (function () {
   var NBG = window.NBG;
 
@@ -613,11 +656,11 @@ window.NBG_CONFIG = {
     var wrap = $("#cat-cards");
     wrap.innerHTML = D.categories.map(function (c, i) {
       var media = c.video
-        ? '<video class="cc-film" data-broadcast-video muted loop playsinline preload="none" width="1280" height="720" poster="' + esc(c.img) + '" aria-hidden="true"><source src="' + esc(c.video) + '" type="video/mp4"></video><span class="cc-video-status" data-clip-status role="status" aria-live="polite"></span>'
+        ? '<video class="cc-film" data-broadcast-video muted loop playsinline preload="none" width="1280" height="720" data-poster="' + esc(c.img) + '" aria-hidden="true"><source src="' + esc(c.video) + '" type="video/mp4"></video><span class="cc-video-status" data-clip-status role="status" aria-live="polite"></span>'
         : NBG.img(c.img, "", { w: 1200, h: 900 });
       return '<button class="cat-card" id="cat-tab-' + c.id + '" role="tab" type="button" data-cat="' + c.id + '" aria-controls="explorer" tabindex="' + (c.id === state.cat ? "0" : "-1") + '"' + (c.video ? ' data-broadcast-clip' : '') + ' aria-selected="' + (c.id === state.cat) + '">' +
         '<span class="cc-img">' + media + '</span>' +
-        (c.video ? '<span class="cc-film-tag">Film excerpt</span>' : '') +
+        (c.video ? '<span class="cc-film-tag">Project film</span>' : '') +
         '<span class="cc-body"><span class="cc-num">0' + (i + 1) + '</span><h3>' + esc(c.label) + '</h3><span class="cc-range">' + esc(c.range) + '</span><p>' + esc(c.blurb) + '</p><span class="cc-cta">Explore layouts <span aria-hidden="true">→</span></span></span></button>';
     }).join("");
     $$(".cat-card", wrap).forEach(function (b) { b.addEventListener("click", function () { selectCat(b.getAttribute("data-cat"), true); }); });
@@ -685,8 +728,8 @@ window.NBG_CONFIG = {
     $(".open-unit", media).addEventListener("click", function () { openUnit(u.id, showIso ? "iso" : "plan"); });
     info.innerHTML = '<p class="eyebrow">' + esc(catOf(u.cat).label) + '</p>' +
       '<h3>' + esc(u.name) + '</h3>' +
-      '<div class="stage-area"><p class="sqm">' + u.sqm + '<small>sqm</small></p><span>Indicative area</span></div>' + specHTML(u) +
-      (u.pending ? '<p class="pending-note"><strong>To be confirmed:</strong> ' + esc(u.pending) + '</p>' : "") +
+      '<div class="stage-area"><p class="sqm">' + u.sqm + '<small>sqm</small></p><span>Approximate area</span></div>' + specHTML(u) +
+      (u.pending ? '<p class="pending-note"><strong>Important detail:</strong> ' + esc(u.pending) + '</p>' : "") +
       availabilityHTML() +
       '<div class="stage-actions"><button class="btn btn-gold" type="button" data-act="plan">View floor plan</button><button class="btn btn-ghost" type="button" data-act="enq">Request a viewing</button><button class="link-arrow" type="button" data-act="availability">Ask about this residence</button>' + NBG.shortlist.heart(u.id) + '</div>';
     info.querySelector('[data-act="plan"]').addEventListener("click", function () { openUnit(u.id, "plan"); });
@@ -716,7 +759,7 @@ window.NBG_CONFIG = {
       setTimeout(function () { var h = $(".pz-hint", viewer); if (h) h.style.opacity = 0; }, 4500);
     }
     var legend = u.legend && u.legend.length ? '<h3>Room arrangement</h3><ol>' + u.legend.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join("") + '</ol>' : "";
-    side.innerHTML = '<h3>' + esc(u.name) + '</h3>' + specHTML(u) + (u.pending ? '<p class="pending-note"><strong>To be confirmed:</strong> ' + esc(u.pending) + '</p>' : "") + availabilityHTML() + legend +
+    side.innerHTML = '<h3>' + esc(u.name) + '</h3>' + specHTML(u) + (u.pending ? '<p class="pending-note"><strong>Important detail:</strong> ' + esc(u.pending) + '</p>' : "") + availabilityHTML() + legend +
       '<h3>Switch configuration</h3><div class="size-row" style="margin-bottom:8px">' + D.units.map(function (x) { return '<button class="size-chip" type="button" data-u="' + x.id + '" aria-selected="' + (x.id === u.id) + '" style="min-width:0;padding:8px 12px"><b style="font-size:20px">' + x.sqm + '<small>sqm</small></b><span>' + (x.layoutOnly ? "3 bed" : x.code) + '</span></button>'; }).join("") + '</div>' +
       '<div class="stage-actions"><button class="btn btn-gold" type="button" data-act="enq">Request a viewing</button><button class="btn btn-ghost btn-sm" type="button" data-act="availability">Ask about availability</button>' + NBG.shortlist.heart(u.id) + '<button class="btn btn-ghost btn-sm" type="button" data-act="share">Share</button><a class="btn btn-ghost btn-sm" data-act="dl" href="' + u.plan + '" download="ocean-mist-' + u.id + '-floor-plan.webp">Download plan</a></div>';
     var sh = $('[data-act="share"]', side); sh.addEventListener("click", function () { var url = location.origin + location.pathname + "#residence-" + u.id, data = { title: u.name + " — Ocean Mist Tower", url: url }; if (navigator.share) navigator.share(data).catch(function () {}); else if (navigator.clipboard) navigator.clipboard.writeText(url).then(function () { sh.textContent = "Link copied"; setTimeout(function () { sh.textContent = "Share"; }, 1800); }, function () {}); });
@@ -871,19 +914,291 @@ window.NBG_CONFIG = {
 
   function location() {
     var L = NBG.data.location, filter = $("#loc-filter"), list = $("#loc-list"), cur = "All";
+    var frame = $("#map-frame"), poster = $("#map-poster"), canvas = $("#google-map"), embed = $("#map-embed");
+    var status = $("#map-status"), caption = $("#map-caption"), liveLabel = $("#map-live-label");
+    var layerControls = $("#map-layer-controls"), mapControls = $("#map-controls");
+    var apiKey = NBG.cfg.maps && NBG.cfg.maps.apiKey, address = NBG.cfg.contact.mapsQuery || NBG.cfg.contact.addressLine;
+    var mapStarted = false, fallbackLoaded = false, mapTilesReady = false, googleMap = null, origin = null, placesLibrary = null, placeSearchRequest = 0;
+    var originMarker = null, infoWindow = null, trafficLayer = null, transitLayer = null, placeMarkers = [];
     var cats = ["All"].concat(L.map(function (c) { return c.cat; }));
+    var placeSearch = {
+      "Education": { types: ["school"] },
+      "Places of worship": { types: ["mosque", "church", "hindu_temple", "synagogue", "buddhist_temple"] },
+      "Shopping": { types: ["shopping_mall", "supermarket"] },
+      "Healthcare": { types: ["hospital", "doctor", "pharmacy"] },
+      "Recreation": { types: ["park", "tourist_attraction"] },
+      "Beaches": { types: ["beach"] },
+      "Everyday services": { types: ["convenience_store", "gas_station"] }
+    };
+
     filter.innerHTML = cats.map(function (c) { return '<button class="chip" type="button" data-c="' + esc(c) + '" aria-pressed="' + (c === cur) + '">' + esc(c) + '</button>'; }).join("");
     function paint() {
       var rows = []; L.forEach(function (c) { if (cur === "All" || cur === c.cat) c.items.forEach(function (it) { rows.push({ cat: c.cat, it: it }); }); });
-      list.innerHTML = rows.map(function (r, i) { return '<li style="animation-delay:' + i * 45 + 'ms"><div><small>' + esc(r.cat) + '</small><strong>' + esc(r.it.n) + '</strong></div><span class="tm"><span class="mode-ico" aria-hidden="true">' + (r.it.m === "walk" ? "🚶" : "🚗") + '</span>' + esc(r.it.t) + '<small>' + esc(r.it.m) + '</small></span><span class="bar" style="--w:' + Math.min(100, parseInt(r.it.t, 10) * 10) + '%;animation-delay:' + i * 45 + 'ms"></span></li>'; }).join("");
+      list.innerHTML = rows.map(function (r, i) {
+        var icon = r.it.m === "walk"
+          ? '<svg class="mode-ico mode-ico--walk" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="13" cy="4" r="2" fill="currentColor"/><path d="M11 8l-3 4 4 2 1 5M11 8l4 2 2 4M8 12l-2 4m9-7-2 4 3 2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+          : '<svg class="mode-ico mode-ico--drive" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 11l1.5-4h11L19 11l2 1.5V18H3v-5.5L5 11Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M5 12h14M7 16h.01M17 16h.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><g class="mode-wheel" transform="translate(7 18)"><circle r="1.5" fill="#071114" stroke="currentColor" stroke-width="1.2"/><path d="M0-1v2" stroke="currentColor" stroke-width=".8"/></g><g class="mode-wheel" transform="translate(17 18)"><circle r="1.5" fill="#071114" stroke="currentColor" stroke-width="1.2"/><path d="M0-1v2" stroke="currentColor" stroke-width=".8"/></g></svg>';
+        return '<li style="animation-delay:' + i * 45 + 'ms"><div><small>' + esc(r.cat) + '</small><strong>' + esc(r.it.n) + '</strong></div><span class="tm">' + icon + esc(r.it.t) + '<small>' + esc(r.it.m) + '</small></span><span class="bar" style="--w:' + Math.min(100, parseInt(r.it.t, 10) * 10) + '%;animation-delay:' + i * 45 + 'ms"></span></li>';
+      }).join("");
     }
-    filter.addEventListener("click", function (e) { var b = e.target.closest(".chip"); if (!b) return; cur = b.getAttribute("data-c"); $$(".chip", filter).forEach(function (c) { c.setAttribute("aria-pressed", c === b); }); paint(); });
+    filter.addEventListener("click", function (e) {
+      var b = e.target.closest(".chip"); if (!b) return;
+      cur = b.getAttribute("data-c");
+      $$(".chip", filter).forEach(function (c) { c.setAttribute("aria-pressed", c === b); });
+      paint();
+      searchNearby(cur);
+    });
     paint();
 
-    var frame = $("#map-frame"), img = $("img", frame); frame.style.touchAction = "pan-y";
-    img.removeAttribute("draggable"); var pz = new NBG.PanZoom(frame, img, { fit: "contain", max: 5, wheel: "ctrl", mouseOnly: true });
-    $$("[data-map]").forEach(function (b) { b.addEventListener("click", function () { var a = b.getAttribute("data-map"); a === "in" ? pz.zoomIn() : a === "out" ? pz.zoomOut() : pz.reset(); }); });
-    $("#maps-link").href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(NBG.cfg.contact.mapsQuery);
+    function setStatus(message) { status.textContent = message || ""; }
+    function setPressed(button, value) { button.setAttribute("aria-pressed", value ? "true" : "false"); }
+    function clearPlaceMarkers() {
+      placeMarkers.forEach(function (marker) { marker.setMap(null); });
+      placeMarkers = [];
+    }
+    function mapsDirectionsUrl(destination, placeId) {
+      var query = ["api=1", "destination=" + encodeURIComponent(destination || address)];
+      if (placeId) query.push("destination_place_id=" + encodeURIComponent(placeId));
+      return "https://www.google.com/maps/dir/?" + query.join("&");
+    }
+    function infoContent(title, detail, placeId) {
+      var card = document.createElement("div"), heading = document.createElement("strong"), copy = document.createElement("p"), link = document.createElement("a");
+      card.className = "map-info";
+      heading.textContent = title;
+      copy.textContent = detail;
+      link.href = mapsDirectionsUrl(title, placeId);
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.textContent = "Get directions";
+      card.appendChild(heading); if (detail) card.appendChild(copy); card.appendChild(link);
+      return card;
+    }
+    function useMapEmbed() {
+      if (fallbackLoaded) return;
+      fallbackLoaded = true;
+      canvas.hidden = true;
+      layerControls.hidden = true;
+      mapControls.hidden = true;
+      embed.hidden = false;
+      setStatus("Loading live Google Maps…");
+      caption.textContent = "Explore the live map, then open Google Maps for directions and current travel conditions.";
+      var iframe = document.createElement("iframe");
+      iframe.title = "Interactive Google Map of Ocean Mist Tower and nearby places";
+      iframe.loading = "lazy";
+      iframe.referrerPolicy = "no-referrer-when-downgrade";
+      iframe.allowFullscreen = true;
+      iframe.src = "https://www.google.com/maps?q=" + encodeURIComponent(address) + "&output=embed";
+      iframe.addEventListener("load", function () {
+        frame.classList.add("map-frame--live");
+        poster.classList.add("map-poster--hidden");
+        liveLabel.textContent = "LIVE GOOGLE MAPS";
+        setStatus("");
+      }, { once: true });
+      embed.appendChild(iframe);
+    }
+    function loadMapsApi(key) {
+      return new Promise(function (resolve, reject) {
+        if (window.google && window.google.maps && window.google.maps.Map) { resolve(window.google.maps); return; }
+        var callbackName = "__nbgGoogleMapsReady", timer = window.setTimeout(function () {
+          window[callbackName] = function () {};
+          reject(new Error("Google Maps did not finish loading."));
+        }, 12000);
+        window[callbackName] = function () {
+          window.clearTimeout(timer);
+          window[callbackName] = function () {};
+          if (window.google && window.google.maps) resolve(window.google.maps);
+          else reject(new Error("Google Maps loaded without its map library."));
+        };
+        var script = document.createElement("script");
+        script.src = "https://maps.googleapis.com/maps/api/js?key=" + encodeURIComponent(key) + "&libraries=places&v=weekly&callback=" + callbackName;
+        script.async = true;
+        script.defer = true;
+        script.onerror = function () {
+          window.clearTimeout(timer);
+          window[callbackName] = function () {};
+          reject(new Error("The Google Maps script could not be loaded."));
+        };
+        document.head.appendChild(script);
+      });
+    }
+    function searchNearby(category) {
+      var requestId = ++placeSearchRequest;
+      clearPlaceMarkers();
+      if (!placesLibrary || !origin || !mapTilesReady || category === "All") { setStatus(""); return; }
+      var search = placeSearch[category];
+      if (!search) return;
+      setStatus("Finding nearby " + category.toLowerCase() + " places…");
+      placesLibrary.Place.searchNearby({
+        fields: ["displayName", "location", "formattedAddress", "id"],
+        locationRestriction: { center: origin, radius: 5000 },
+        includedPrimaryTypes: search.types,
+        maxResultCount: 8,
+        rankPreference: placesLibrary.SearchNearbyRankPreference.DISTANCE
+      }).then(function (response) {
+        if (requestId !== placeSearchRequest || cur !== category || fallbackLoaded) return;
+        var places = response.places || [];
+        if (!places.length) {
+          setStatus("No nearby " + category.toLowerCase() + " places found.");
+          return;
+        }
+        var bounds = new window.google.maps.LatLngBounds();
+        bounds.extend(origin);
+        places.forEach(function (place) {
+          if (!place.location) return;
+          var marker = new window.google.maps.Marker({
+            map: googleMap,
+            position: place.location,
+            title: place.displayName || "Nearby place",
+            icon: { path: window.google.maps.SymbolPath.CIRCLE, scale: 6, fillColor: "#20C5C8", fillOpacity: 1, strokeColor: "#064E55", strokeWeight: 2 }
+          });
+          marker.addListener("click", function () {
+            googleMap.panTo(marker.getPosition());
+            googleMap.setZoom(Math.max(googleMap.getZoom(), 16));
+            infoWindow.setContent(infoContent(place.displayName || "Nearby place", place.formattedAddress || "", place.id));
+            infoWindow.open(googleMap, marker);
+          });
+          placeMarkers.push(marker);
+          bounds.extend(place.location);
+        });
+        if (placeMarkers.length) googleMap.fitBounds(bounds, 48);
+        setStatus("Showing " + placeMarkers.length + " nearby " + category.toLowerCase() + " places from Google Maps.");
+      }).catch(function (error) {
+        if (requestId !== placeSearchRequest || cur !== category || fallbackLoaded) return;
+        console.error("Google Maps nearby-place search failed:", error);
+        setStatus("Nearby places are temporarily unavailable.");
+      });
+    }
+    function createGoogleMap(maps) {
+      if (fallbackLoaded) return;
+      var geocoder = new maps.Geocoder();
+      geocoder.geocode({ address: address }, function (results, resultStatus) {
+        if (fallbackLoaded) return;
+        if (resultStatus !== "OK" || !results || !results.length) {
+          console.warn("Google Maps could not resolve the Ocean Mist project address:", resultStatus);
+          useMapEmbed();
+          return;
+        }
+        origin = results[0].geometry.location;
+        canvas.hidden = false;
+        googleMap = new maps.Map(canvas, {
+          center: origin,
+          zoom: 15,
+          mapTypeId: "roadmap",
+          gestureHandling: "cooperative",
+          mapTypeControl: false,
+          streetViewControl: true,
+          fullscreenControl: true,
+          zoomControl: false,
+          styles: [
+            { elementType: "geometry", stylers: [{ color: "#e9e2d4" }] },
+            { elementType: "labels.text.fill", stylers: [{ color: "#233b43" }] },
+            { featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
+            { featureType: "water", elementType: "geometry", stylers: [{ color: "#86cfd0" }] },
+            { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#c5d8b8" }] }
+          ]
+        });
+        infoWindow = new maps.InfoWindow();
+        originMarker = new maps.Marker({
+          map: googleMap,
+          position: origin,
+          title: "Ocean Mist Tower — address search result",
+          animation: NBG.reduced ? null : maps.Animation.DROP,
+          label: { text: "NBG", color: "#071114", fontWeight: "700", fontSize: "10px" },
+          icon: { path: maps.SymbolPath.CIRCLE, scale: 10, fillColor: "#20C5C8", fillOpacity: 1, strokeColor: "#064E55", strokeWeight: 3 }
+        });
+        originMarker.addListener("click", function () {
+          infoWindow.setContent(infoContent("Ocean Mist Tower", "Address search result. Confirm the exact entrance with NBG."));
+          infoWindow.open(googleMap, originMarker);
+        });
+        trafficLayer = new maps.TrafficLayer();
+        transitLayer = new maps.TransitLayer();
+        layerControls.hidden = false;
+        mapControls.hidden = false;
+        frame.classList.add("map-frame--api");
+        liveLabel.textContent = "LIVE GOOGLE MAPS";
+        caption.textContent = "Address search result · verify the exact entrance with NBG. Live map layers and directions are available.";
+        setStatus("Loading live map tiles…");
+        var tileTimer = window.setTimeout(function () {
+          if (!frame.classList.contains("map-frame--live")) useMapEmbed();
+        }, 12000);
+        maps.event.addListenerOnce(googleMap, "tilesloaded", function () {
+          window.clearTimeout(tileTimer);
+          mapTilesReady = true;
+          frame.classList.add("map-frame--live");
+          poster.classList.add("map-poster--hidden");
+          setStatus("");
+          if (cur !== "All") searchNearby(cur);
+        });
+        maps.importLibrary("places").then(function (library) {
+          placesLibrary = library;
+          if (cur !== "All" && mapTilesReady) searchNearby(cur);
+        }).catch(function (error) {
+          console.error("Google Places Library could not be loaded.", error);
+          setStatus("Nearby places are temporarily unavailable.");
+        });
+      });
+    }
+    function startMap() {
+      if (mapStarted) return;
+      mapStarted = true;
+      if (!apiKey) { useMapEmbed(); return; }
+      window.gm_authFailure = function () {
+        console.error("Google Maps rejected the configured browser API key.");
+        useMapEmbed();
+      };
+      loadMapsApi(apiKey).then(createGoogleMap).catch(function (error) {
+        console.error("Could not initialize Google Maps for Ocean Mist.", error);
+        useMapEmbed();
+      });
+    }
+
+    $$("#map-layer-controls [data-map-layer]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        if (!googleMap) return;
+        var layer = button.getAttribute("data-map-layer");
+        if (layer === "traffic" || layer === "transit") {
+          var overlay = layer === "traffic" ? trafficLayer : transitLayer;
+          var enabled = button.getAttribute("aria-pressed") !== "true";
+          overlay.setMap(enabled ? googleMap : null);
+          setPressed(button, enabled);
+          return;
+        }
+        googleMap.setMapTypeId(layer);
+        $$("#map-layer-controls [data-map-layer]").forEach(function (other) {
+          if (["roadmap", "satellite", "hybrid", "terrain"].indexOf(other.getAttribute("data-map-layer")) !== -1) setPressed(other, other === button);
+        });
+      });
+    });
+    $$("#map-controls [data-map]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        if (!googleMap) return;
+        var action = button.getAttribute("data-map");
+        if (action === "in") googleMap.setZoom(googleMap.getZoom() + 1);
+        else if (action === "out") googleMap.setZoom(googleMap.getZoom() - 1);
+        else if (action === "reset") { googleMap.panTo(origin); googleMap.setZoom(15); }
+        else if (action === "locate") {
+          if (!navigator.geolocation) { setStatus("Location sharing is not available in this browser."); return; }
+          setStatus("Finding your location…");
+          navigator.geolocation.getCurrentPosition(function (position) {
+            googleMap.panTo({ lat: position.coords.latitude, lng: position.coords.longitude });
+            googleMap.setZoom(16);
+            setStatus("Map centred on your location.");
+          }, function () { setStatus("Your location could not be accessed. Check your browser permission."); }, { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 });
+        }
+      });
+    });
+    $("#maps-link").href = mapsDirectionsUrl(address);
+    $("#maps-link").target = "_blank";
+    $("#maps-link").rel = "noopener";
+    if ("IntersectionObserver" in window) {
+      var mapObserver = new IntersectionObserver(function (entries) {
+        if (entries.some(function (entry) { return entry.isIntersecting; })) {
+          mapObserver.disconnect();
+          startMap();
+        }
+      }, { rootMargin: "320px 0px" });
+      mapObserver.observe(frame);
+    } else startMap();
   }
 
   function contact() {
@@ -893,7 +1208,6 @@ window.NBG_CONFIG = {
     link("c-phone", c.phone && "tel:" + c.phone.replace(/[^\d+]/g, ""), c.phone); link("f-phone", c.phone && "tel:" + c.phone.replace(/[^\d+]/g, ""), c.phone);
     link("c-email", c.email && "mailto:" + c.email, c.email); link("f-email", c.email && "mailto:" + c.email, c.email);
     link("c-wa", wa); link("f-wa", wa);
-    if (c.phone || c.email || wa) $("#f-contact-pending").hidden = true;
     var w = $("#wa-float"); if (wa) { w.href = wa; w.target = "_blank"; w.rel = "noopener"; } /* else: opens the enquiry form */
     var soc = NBG.cfg.social, names = { instagram: "IG", facebook: "FB", linkedin: "IN", youtube: "YT", tiktok: "TT" };
     $("#socials").innerHTML = Object.keys(soc).filter(function (k) { return soc[k]; }).map(function (k) { return '<li><a href="' + esc(soc[k]) + '" target="_blank" rel="noopener" aria-label="' + k + '">' + names[k] + '</a></li>'; }).join("");
@@ -1111,7 +1425,9 @@ window.NBG_CONFIG = {
     if (!ep) {
       var mail = NBG.mailLink("Ocean Mist Tower — " + data.formType, text), wa = NBG.waLink("Hello Next Bridge Group, I am interested in Ocean Mist Tower.\n\n" + text);
       var links = (mail ? '<a href="' + mail + '">Email us instead</a>' : "") + (wa ? '<a href="' + wa + '" target="_blank" rel="noopener">WhatsApp us instead</a>' : "");
-      status(form, "bad", "<strong>Your enquiry has not been sent.</strong> The online enquiry form is not connected to a mailbox yet, so nothing was submitted. Your details are still in the form." + (links ? '<div class="row">' + links + "</div>" : " Please check back shortly or contact the property team directly."));
+      status(form, links
+        ? "<strong>Your enquiry was not sent.</strong> Please use another contact option below.<div class=\"row\">" + links + "</div>"
+        : "<strong>Your enquiry was not sent.</strong> Online enquiries are temporarily unavailable. Please try again later.");
       return;
     }
     btn.classList.add("loading"); btn.disabled = true; $(".form-status", form).hidden = true;
@@ -1162,6 +1478,7 @@ window.NBG_CONFIG = {
         e.preventDefault();
         var video = $("#film-video"), section = $("#film"), status = $("#film-status");
         if (!video || !section || !status) return;
+        loadPoster(video);
         var playback = video.play();
         section.scrollIntoView({ behavior: NBG.reduced ? "auto" : "smooth", block: "center" });
         playback.catch(function (error) {
@@ -1171,6 +1488,15 @@ window.NBG_CONFIG = {
       });
       var video = $("#film-video"), status = $("#film-status");
       if (!video || !status) return;
+      if ("IntersectionObserver" in window) {
+        var posterObserver = new IntersectionObserver(function (entries) {
+          if (entries[0].isIntersecting) {
+            loadPoster(video);
+            posterObserver.disconnect();
+          }
+        }, { rootMargin: "240px 0px" });
+        posterObserver.observe(video);
+      } else loadPoster(video);
       video.addEventListener("play", function () { status.textContent = ""; });
       video.addEventListener("error", function () {
         status.textContent = "The film could not be loaded. Please try again later.";
@@ -1178,14 +1504,26 @@ window.NBG_CONFIG = {
       });
     }
   };
+
+  function loadPoster(video) {
+    var poster = video.getAttribute("data-poster");
+    if (poster && !video.getAttribute("poster")) video.setAttribute("poster", nbgPosterSrc(poster));
+  }
 })();
 
-/* clips.js — muted, viewport-aware playback for project film excerpts */
+/* clips.js — muted, viewport-aware project video playback */
 (function () {
   var NBG = window.NBG, $ = NBG.$, $$ = NBG.$$;
 
+  function loadPoster(video) {
+    var poster = video.getAttribute("data-poster");
+    if (poster && !video.getAttribute("poster")) video.setAttribute("poster", nbgPosterSrc(poster));
+  }
+
   function start(video) {
-    if (NBG.reduced || document.hidden) { video.pause(); return; }
+    loadPoster(video);
+    var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (NBG.reduced || document.hidden || (connection && (connection.saveData || /^(slow-2g|2g)$/.test(connection.effectiveType || "")))) { video.pause(); return; }
     video.autoplay = true;
     var playback = video.play();
     if (playback && typeof playback.catch === "function") playback.catch(function (error) {
@@ -1193,8 +1531,8 @@ window.NBG_CONFIG = {
       var clip = video.closest("[data-broadcast-clip]"), status = $("[data-clip-status]", clip);
       status.textContent = video.controls
         ? "Autoplay is unavailable. Use the player controls to start this clip."
-        : "This residence film preview could not autoplay; a still image is shown instead.";
-      console.error("Could not autoplay an Ocean Mist film excerpt.", error);
+        : "This video could not autoplay. The image is still available.";
+      console.error("Could not autoplay an Ocean Mist project video.", error);
     });
   }
 
@@ -1204,11 +1542,19 @@ window.NBG_CONFIG = {
       if (!videos.length) return;
       videos.forEach(function (video) {
         video.muted = true; video.defaultMuted = true; video.loop = true; video.playsInline = true; video.preload = "none";
-        video.addEventListener("play", function () { $("[data-clip-status]", video.closest("[data-broadcast-clip]")).textContent = ""; });
+        video.addEventListener("play", function () {
+          var frame = video.closest(".section-film-frame");
+          $("[data-clip-status]", video.closest("[data-broadcast-clip]")).textContent = "";
+          if (frame) frame.classList.add("is-playing");
+        });
+        video.addEventListener("pause", function () {
+          var frame = video.closest(".section-film-frame");
+          if (frame) frame.classList.remove("is-playing");
+        });
         video.addEventListener("error", function () {
           var status = $("[data-clip-status]", video.closest("[data-broadcast-clip]"));
-          status.textContent = "This film excerpt could not be loaded.";
-          console.error("Failed to load an Ocean Mist film excerpt.", video.error);
+          status.textContent = "This video could not be loaded.";
+          console.error("Failed to load an Ocean Mist project video.", video.error);
         });
       });
       if ("IntersectionObserver" in window) {
@@ -1219,7 +1565,7 @@ window.NBG_CONFIG = {
           });
         }, { threshold: .35 });
         videos.forEach(function (video) { observer.observe(video); });
-      } else if (!NBG.reduced) videos.forEach(start);
+      } else videos.forEach(loadPoster);
       document.addEventListener("visibilitychange", function () {
         if (document.hidden) { videos.forEach(function (video) { video.pause(); }); return; }
         videos.forEach(function (video) {
@@ -1360,7 +1706,7 @@ window.NBG_CONFIG = {
 })();
 
 
-/* building.js — floor-by-floor tower explorer using the brochure layouts */
+/* building.js — floor-by-floor tower explorer */
 (function () {
   var NBG = window.NBG, $ = NBG.$, $$ = NBG.$$, esc = NBG.esc;
   NBG.building = {
@@ -1373,11 +1719,11 @@ window.NBG_CONFIG = {
         var l = L[cur], d = info(l);
         $$("#tower button").forEach(function (b, i) { b.setAttribute("aria-pressed", i === cur); b.classList.toggle("in-range", i !== cur && L[i].range === l.range); });
         panel.innerHTML = '<p class="eyebrow"><span class="line"></span>' + esc(l.label) + '</p><h3>' + esc(d.title) + '</h3><p>' + esc(d.text) + '</p>' +
-          '<div class="bld-plan" role="button" tabindex="0" aria-label="Open ' + esc(d.title) + ' layout full screen">' + NBG.img(d.plan, d.title + " layout from the brochure", { w: 2400, h: 1716, lazy: false }) + '</div>' +
+          '<div class="bld-plan" role="button" tabindex="0" aria-label="Open ' + esc(d.title) + ' layout full screen">' + NBG.img(d.plan, d.title + " layout", { w: 2400, h: 1716, lazy: false }) + '</div>' +
           '<div class="bld-tags">' + d.tags.map(function (t) { return '<span>' + esc(t) + '</span>'; }).join("") + '</div>' +
           '<div class="bld-nav"><button class="icon-btn" id="bld-up" type="button" aria-label="Level above"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M3 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></button><button class="icon-btn" id="bld-dn" type="button" aria-label="Level below"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M3 7l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></button><span style="font-size:12px;color:var(--muted);letter-spacing:.1em">Use ↑ ↓ keys on the tower</span></div>';
         var plan = $(".bld-plan", panel);
-        function open() { NBG.lightbox.open([{ src: d.plan, alt: d.title, cap: d.title + " — brochure layout" }], 0); }
+        function open() { NBG.lightbox.open([{ src: d.plan, alt: d.title + " layout", cap: d.title + " layout" }], 0); }
         plan.addEventListener("click", open); plan.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
         $("#bld-up").addEventListener("click", function () { sel(cur - 1); }); $("#bld-dn").addEventListener("click", function () { sel(cur + 1); });
       }
