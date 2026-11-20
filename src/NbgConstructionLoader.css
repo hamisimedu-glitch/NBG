@@ -1,0 +1,202 @@
+.nbg-loader {
+  position: fixed;
+  z-index: 300;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 40%, rgb(8 50 54 / 22%), transparent 48%),
+    #071114;
+  color: #e4f6f5;
+  opacity: 1;
+  transition: opacity 500ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.nbg-loader--leaving {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.nbg-loader__content {
+  position: absolute;
+  top: 47%;
+  left: 50%;
+  display: flex;
+  width: min(calc(100% - 40px), 480px);
+  flex-direction: column;
+  align-items: center;
+  transform: translate(-50%, -50%);
+}
+
+.nbg-loader__building {
+  display: block;
+  width: min(78vw, 420px);
+  max-height: min(54svh, 430px);
+  overflow: visible;
+  filter: drop-shadow(0 0 12px rgb(32 197 200 / 8%));
+}
+
+.nbg-loader__architecture {
+  stroke: #20c5c8;
+  stroke-width: 1.15;
+  filter: url(#nbg-line-glow);
+  animation: nbg-loader-completion-glow 900ms ease-out 2330ms both;
+}
+
+.nbg-loader__draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: nbg-loader-draw 320ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.nbg-loader__foundation {
+  stroke: #20c5c8;
+  stroke-width: 1.2;
+  animation-duration: 280ms;
+}
+
+.nbg-loader__lobby {
+  stroke: #20c5c8;
+  stroke-width: 1;
+  animation-duration: 320ms;
+}
+
+.nbg-loader__floor {
+  stroke: #20c5c8;
+  stroke-width: 0.9;
+}
+
+.nbg-loader__roof {
+  stroke: #20c5c8;
+  stroke-width: 1.1;
+  animation-duration: 360ms;
+}
+
+.nbg-loader__sweep {
+  stroke-width: 3;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  filter: drop-shadow(0 0 7px rgb(32 197 200 / 95%));
+  animation: nbg-loader-sweep 550ms cubic-bezier(0.2, 0.7, 0.2, 1) 2330ms both;
+}
+
+.nbg-loader__identity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: -6px;
+  opacity: 0;
+  animation: nbg-loader-reveal 500ms cubic-bezier(0.2, 0.7, 0.2, 1) 2880ms both;
+}
+
+.nbg-loader__logo {
+  display: block;
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+}
+
+.nbg-loader__name {
+  margin: 3px 0 0;
+  color: #e4f6f5;
+  font-family: var(--sans);
+  font-size: clamp(0.62rem, 2.2vw, 0.76rem);
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-align: center;
+}
+
+.nbg-loader__tagline {
+  margin: 5px 0 0;
+  color: #20c5c8;
+  font-family: var(--sans);
+  font-size: 0.55rem;
+  letter-spacing: 0.3em;
+  text-align: center;
+  opacity: 0;
+  animation: nbg-loader-reveal 420ms ease-out 3060ms both;
+}
+
+.nbg-loader__progress {
+  position: absolute;
+  right: max(24px, env(safe-area-inset-right));
+  bottom: max(30px, env(safe-area-inset-bottom));
+  left: max(24px, env(safe-area-inset-left));
+  width: min(calc(100% - 48px), 360px);
+  margin-inline: auto;
+  color: #b9f0ee;
+  font-family: var(--sans);
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+}
+
+.nbg-loader__progress-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.nbg-loader__percentage {
+  color: #20c5c8;
+  font-variant-numeric: tabular-nums;
+}
+
+.nbg-loader__track {
+  height: 1px;
+  overflow: hidden;
+  background: rgb(185 240 238 / 18%);
+}
+
+.nbg-loader__fill {
+  position: relative;
+  display: block;
+  height: 100%;
+  background: #20c5c8;
+  box-shadow: 0 0 8px rgb(32 197 200 / 75%);
+  transition: width 80ms linear;
+}
+
+.nbg-loader__fill::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 48px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, #b9f0ee);
+  content: "";
+}
+
+@keyframes nbg-loader-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes nbg-loader-sweep {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes nbg-loader-reveal {
+  from { opacity: 0; transform: translateY(5px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes nbg-loader-completion-glow {
+  0%, 100% { filter: drop-shadow(0 0 2px rgb(32 197 200 / 30%)); }
+  45% { filter: drop-shadow(0 0 8px rgb(32 197 200 / 75%)); }
+}
+
+@media (max-height: 620px) {
+  .nbg-loader__content { top: 45%; }
+  .nbg-loader__building { width: min(56vh, 300px); max-height: 43svh; }
+  .nbg-loader__logo { width: 40px; height: 40px; }
+  .nbg-loader__identity { margin-top: -10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nbg-loader *,
+  .nbg-loader *::before,
+  .nbg-loader *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
