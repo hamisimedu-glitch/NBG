@@ -1265,31 +1265,222 @@ window.NBG_CONFIG = {
 })();
 
 
-/* building.js — floor-by-floor tower explorer using the brochure layouts */
+/* building.js — floor-by-floor tower explorer using supplied plans and visualisations */
 (function () {
   var NBG = window.NBG, $ = NBG.$, $$ = NBG.$$, esc = NBG.esc;
   NBG.building = {
     init: function () {
-      var L = NBG.data.levels, tower = $("#tower"), panel = $("#bld-panel"), floorIndicator = $("#bld-floor-indicator"); if (!tower) return;
-      var cur = 1;
+      var L = NBG.data.levels, tower = $("#tower"), panel = $("#bld-panel"), floorIndicator = $("#bld-floor-indicator");
+      if (!tower || !panel) return;
+      var cur = 1, scenes = [], sceneIndex = 0, selectedUnitId = null, playbackTimer = null, playbackRequested = false, sectionVisible = false;
+
       function info(l) { return l.plan ? l : L.filter(function (x) { return x.range === l.range && x.plan; })[0]; }
-      tower.innerHTML = L.map(function (l, i) { return '<li class="' + (l.id === "roof" ? "roof" : l.id === "0" ? "ground" : "") + '"><button type="button" data-i="' + i + '" aria-pressed="false">' + esc(l.label) + '<span aria-hidden="true">' + (l.id === "roof" ? "◇" : l.id === "0" ? "G" : l.id) + '</span></button></li>'; }).join("");
+      function unitsFor(l) {
+        return l.range === "1-9" ? NBG.data.units.filter(function (u) { return (u.cat === "1bed" || u.cat === "2bed") && u.iso; }) : [];
+      }
+      function roomsFor(l) {
+        return NBG.data.rooms.filter(function (r) { return l.id === "roof" ? r.id === "rooftop" : r.id !== "rooftop"; });
+      }
+      function buildScenes(l, d, units) {
+        var result = [];
+        if (l.id === "roof") {
+          roomsFor(l).forEach(function (r) {
+            r.images.forEach(function (image, i) {
+              result.push({
+                key: "room:" + r.id + ":" + i, type: "roof", roomId: r.id, src: image.src, alt: image.alt,
+                title: r.label + (r.images.length > 1 ? " · View " + (i + 1) : ""),
+                label: "Rooftop visualisation",
+                note: "Illustrative rooftop render; this is not a navigable 3D model."
+              });
+            });
+          });
+        } else if (units.length) {
+          var unit = units[0];
+          result.push({
+            key: "unit:" + unit.id, type: "unit", unitId: unit.id, src: unit.iso, alt: unit.isoAlt,
+            title: unit.name + " cutaway", label: "Apartment cutaway · illustrative",
+            note: "Illustrative cutaway, not to scale or a full-floor walkthrough." + (unit.confirmation ? " " + unit.confirmation : "")
+          });
+        } else {
+          result.push({
+            key: "plan", type: "plan", src: d.plan, alt: d.title + " brochure floor plan",
+            title: d.title + " brochure plan", label: "Brochure floor plan",
+            note: "This is the supplied floor-specific brochure plan; no 3D cutaway model was supplied for this level."
+          });
+        }
+        if (l.id !== "roof") {
+          roomsFor(l).forEach(function (r) {
+            if (!r.images.length) return;
+            result.push({
+              key: "room:" + r.id, type: "room", roomId: r.id, src: r.images[0].src, alt: r.images[0].alt,
+              title: r.label, label: "Room render · illustrative",
+              note: "Generic interior visualisation; this room render is not mapped to the selected floor plan."
+            });
+          });
+        }
+        return result;
+      }
+      function roomButtons(l) {
+        return roomsFor(l).map(function (r) {
+          return '<button class="bld-tour-choice" type="button" data-tour-room="' + esc(r.id) + '" aria-pressed="false">' + esc(r.label) + '</button>';
+        }).join("");
+      }
+      function unitButtons(units) {
+        return units.map(function (u) {
+          var detail = u.sqm + " sqm" + (u.status === "subject" ? " · subject to confirmation" : "");
+          return '<button class="bld-tour-choice bld-tour-unit" type="button" data-tour-unit="' + esc(u.id) + '" aria-pressed="false"><span>' + esc(u.code) + '</span><small>' + esc(detail) + '</small></button>';
+        }).join("");
+      }
+      function syncPlayback() {
+        if (playbackTimer) { clearInterval(playbackTimer); playbackTimer = null; }
+        var play = $("[data-tour-play]", panel);
+        if (!play) return;
+        if (playbackRequested && sectionVisible && !document.hidden && scenes.length > 1) {
+          playbackTimer = window.setInterval(nextScene, 5200);
+        }
+        var playing = !!playbackTimer;
+        play.setAttribute("aria-pressed", String(playing));
+        play.querySelector("[data-tour-play-label]").textContent = playing ? "Pause preview" : "Play preview";
+        play.disabled = scenes.length < 2;
+      }
+      function paintScene() {
+        var scene = scenes[sceneIndex], stage = $("[data-tour-stage]", panel);
+        if (!scene || !stage) return;
+        stage.setAttribute("data-scene", scene.type);
+        stage.innerHTML = NBG.img(scene.src, scene.alt, { lazy: false, sizes: "(max-width: 640px) 100vw, 42vw", cls: "bld-tour-image" }) +
+          '<span class="bld-tour-badge">' + esc(scene.label) + '</span>' +
+          '<button class="bld-tour-fullscreen" type="button" data-tour-fullscreen aria-label="View ' + esc(scene.title) + ' full screen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4H4v4M16 4h4v4M20 16v4h-4M4 16v4h4M4 8l6-6M20 8l-6-6M20 16l-6 6M4 16l6 6"/></svg></button>';
+        $("[data-tour-title]", panel).textContent = scene.title;
+        $("[data-tour-note]", panel).textContent = scene.note;
+        $("[data-tour-count]", panel).textContent = ("0" + (sceneIndex + 1)).slice(-2) + " / " + ("0" + scenes.length).slice(-2);
+        $$("#bld-panel [data-tour-room]").forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-tour-room") === scene.roomId); });
+        $$("#bld-panel [data-tour-unit]").forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-tour-unit") === selectedUnitId); });
+        $("[data-tour-fullscreen]", stage).addEventListener("click", function () {
+          NBG.lightbox.open([{ src: scene.src, alt: scene.alt, cap: scene.title + " — " + scene.label }], 0);
+        });
+      }
+      function nextScene() {
+        if (!scenes.length) return;
+        sceneIndex = (sceneIndex + 1) % scenes.length;
+        paintScene();
+      }
+      function selectRoom(id) {
+        var i = scenes.map(function (s) { return s.roomId; }).indexOf(id);
+        if (i < 0) return;
+        sceneIndex = i;
+        paintScene();
+      }
+      function selectUnit(id) {
+        var unit = NBG.data.units.filter(function (u) { return u.id === id; })[0];
+        if (!unit) return;
+        selectedUnitId = id;
+        var i = scenes.map(function (s) { return s.unitId; }).indexOf(id);
+        if (i >= 0) sceneIndex = i;
+        else {
+          var unitScene = {
+            key: "unit:" + unit.id, type: "unit", unitId: unit.id, src: unit.iso, alt: unit.isoAlt,
+            title: unit.name + " cutaway", label: "Apartment cutaway · illustrative",
+            note: "Illustrative cutaway, not to scale or a full-floor walkthrough." + (unit.confirmation ? " " + unit.confirmation : "")
+          };
+          if (scenes[0].type === "unit") scenes[0] = unitScene;
+          else scenes.unshift(unitScene);
+          sceneIndex = 0;
+        }
+        paintScene();
+      }
       function paint() {
-        var l = L[cur], d = info(l);
+        var l = L[cur], d = info(l), units = unitsFor(l);
         if (floorIndicator) floorIndicator.setAttribute("y", String(92 + cur * 30));
-        $$("#tower button").forEach(function (b, i) { b.setAttribute("aria-pressed", i === cur); b.classList.toggle("in-range", i !== cur && L[i].range === l.range); });
-        panel.innerHTML = '<p class="eyebrow"><span class="line"></span>' + esc(l.label) + '</p><h3>' + esc(d.title) + '</h3><p>' + esc(d.text) + '</p>' +
-          '<div class="bld-plan" role="button" tabindex="0" aria-label="Open ' + esc(d.title) + ' layout full screen"><span class="bld-plan-label"><span>Brochure layout</span><span>Expand ↗</span></span>' + NBG.img(d.plan, d.title + " layout from the brochure", { w: 2400, h: 1716, lazy: false }) + '</div>' +
+        $$("#tower button").forEach(function (b, i) {
+          b.setAttribute("aria-pressed", String(i === cur));
+          b.classList.toggle("in-range", i !== cur && L[i].range === l.range);
+        });
+        scenes = buildScenes(l, d, units);
+        sceneIndex = 0;
+        selectedUnitId = units.length ? units[0].id : null;
+        var unitPanel = units.length ?
+          '<div class="bld-tour-group"><h4>Apartment cutaways</h4><div class="bld-tour-choice-list bld-tour-unit-list">' + unitButtons(units) + '</div></div>' :
+          l.id === "roof" ? "" :
+            '<div class="bld-tour-group"><h4>Floor-specific cutaway</h4><p class="bld-tour-note">No dedicated 3D cutaway was supplied for this level. The room renders below are generic illustrations.</p></div>';
+        playbackRequested = !NBG.reduced;
+        panel.innerHTML = '<div class="bld-floor-info" aria-live="polite"><p class="eyebrow"><span class="line"></span>' + esc(l.label) + '</p><h3>' + esc(d.title) + '</h3><p>' + esc(d.text) + '</p></div>' +
+          '<div class="bld-tour" aria-label="Illustrative floor and room preview">' +
+            '<div class="bld-tour-main">' +
+              '<div class="bld-tour-stage" data-tour-stage data-scene="' + esc(scenes[0].type) + '" aria-label="Illustrative preview image"></div>' +
+              '<div class="bld-tour-caption"><strong data-tour-title></strong><span data-tour-note></span></div>' +
+              '<div class="bld-tour-controls"><button class="bld-tour-step" type="button" data-tour-prev aria-label="Previous preview image"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button><button class="bld-tour-play" type="button" data-tour-play aria-pressed="false"><span class="bld-tour-play-icon" aria-hidden="true"></span><span data-tour-play-label>Play preview</span></button><button class="bld-tour-step" type="button" data-tour-next aria-label="Next preview image"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button><span class="bld-tour-count" data-tour-count></span></div>' +
+            '</div>' +
+            '<aside class="bld-tour-side">' +
+              unitPanel +
+              '<div class="bld-tour-group"><h4>Explore a space</h4><div class="bld-tour-choice-list bld-tour-room-list">' + roomButtons(l) + '</div></div>' +
+              '<button class="bld-plan-preview" type="button" aria-label="Open ' + esc(d.title) + ' brochure floor plan full screen"><span class="bld-plan-label"><span>Brochure plan</span><span>Expand ↗</span></span>' + NBG.img(d.plan, d.title + " layout from the brochure", { w: 2400, h: 1716, lazy: false }) + '</button>' +
+              '<p class="bld-tour-fineprint">Animated image sequence using still visualisations — not a recorded or navigable 3D walkthrough.</p>' +
+            '</aside>' +
+          '</div>' +
           '<div class="bld-tags">' + d.tags.map(function (t) { return '<span>' + esc(t) + '</span>'; }).join("") + '</div>' +
           '<div class="bld-nav"><button class="icon-btn" id="bld-up" type="button" aria-label="Level above"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M3 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></button><button class="icon-btn" id="bld-dn" type="button" aria-label="Level below"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M3 7l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></button><span>Select a level or use arrow keys</span></div>';
-        var plan = $(".bld-plan", panel);
-        function open() { NBG.lightbox.open([{ src: d.plan, alt: d.title, cap: d.title + " — brochure layout" }], 0); }
-        plan.addEventListener("click", open); plan.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
-        $("#bld-up").addEventListener("click", function () { sel(cur - 1); }); $("#bld-dn").addEventListener("click", function () { sel(cur + 1); });
+        var plan = $(".bld-plan-preview", panel);
+        plan.addEventListener("click", function () {
+          NBG.lightbox.open([{ src: d.plan, alt: d.title, cap: d.title + " — brochure layout" }], 0);
+        });
+        $("[data-tour-prev]", panel).addEventListener("click", function () { sceneIndex = (sceneIndex + scenes.length - 1) % scenes.length; paintScene(); });
+        $("[data-tour-next]", panel).addEventListener("click", nextScene);
+        $("[data-tour-play]", panel).addEventListener("click", function () { playbackRequested = !playbackRequested; syncPlayback(); });
+        $$("#bld-panel [data-tour-room]").forEach(function (b) {
+          b.addEventListener("click", function () { selectRoom(b.getAttribute("data-tour-room")); });
+        });
+        $$("#bld-panel [data-tour-unit]").forEach(function (b) {
+          b.addEventListener("click", function () { selectUnit(b.getAttribute("data-tour-unit")); });
+        });
+        var stage = $("[data-tour-stage]", panel);
+        stage.addEventListener("pointermove", function (e) {
+          if (e.pointerType === "touch" || NBG.reduced) return;
+          var image = $(".bld-tour-image", stage), rect = stage.getBoundingClientRect();
+          if (!image) return;
+          var x = (e.clientX - rect.left) / rect.width - .5, y = (e.clientY - rect.top) / rect.height - .5;
+          image.style.transform = "perspective(1100px) rotateX(" + (-y * 4).toFixed(2) + "deg) rotateY(" + (x * 5).toFixed(2) + "deg) scale(1.025)";
+        });
+        stage.addEventListener("pointerleave", function () {
+          var image = $(".bld-tour-image", stage);
+          if (image) image.style.transform = "";
+        });
+        $("#bld-up").addEventListener("click", function () { sel(cur - 1); });
+        $("#bld-dn").addEventListener("click", function () { sel(cur + 1); });
+        paintScene();
+        syncPlayback();
       }
       function sel(i) { cur = Math.max(0, Math.min(L.length - 1, i)); paint(); }
-      tower.addEventListener("click", function (e) { var b = e.target.closest("button"); if (b) sel(+b.getAttribute("data-i")); });
-      tower.addEventListener("keydown", function (e) { if (e.key === "ArrowUp" || e.key === "ArrowDown") { e.preventDefault(); sel(cur + (e.key === "ArrowDown" ? 1 : -1)); $$("#tower button")[cur].focus(); } });
+
+      tower.innerHTML = L.map(function (l, i) {
+        return '<li class="' + (l.id === "roof" ? "roof" : l.id === "0" ? "ground" : "") + '"><button type="button" data-i="' + i + '" aria-pressed="false">' + esc(l.label) + '<span aria-hidden="true">' + (l.id === "roof" ? "◇" : l.id === "0" ? "G" : l.id) + '</span></button></li>';
+      }).join("");
+      tower.addEventListener("click", function (e) {
+        var b = e.target.closest("button");
+        if (b) sel(+b.getAttribute("data-i"));
+      });
+      tower.addEventListener("keydown", function (e) {
+        if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+          e.preventDefault();
+          sel(cur + (e.key === "ArrowDown" ? 1 : -1));
+          $$("#tower button")[cur].focus();
+        }
+      });
+      document.addEventListener("visibilitychange", syncPlayback);
+      if ("IntersectionObserver" in window) {
+        new IntersectionObserver(function (entries) {
+          sectionVisible = entries[0].isIntersecting;
+          syncPlayback();
+        }, { threshold: .12 }).observe($("#building"));
+      } else {
+        function checkVisibility() {
+          var rect = $("#building").getBoundingClientRect();
+          sectionVisible = rect.bottom > 0 && rect.top < window.innerHeight;
+          syncPlayback();
+        }
+        window.addEventListener("scroll", checkVisibility, { passive: true });
+        window.addEventListener("resize", checkVisibility);
+        checkVisibility();
+      }
       paint();
     }
   };
