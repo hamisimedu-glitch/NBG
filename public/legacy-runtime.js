@@ -68,7 +68,8 @@ window.NBG_CONFIG = {
         iso: __IMG["units3d/1bed-c-65sqm.webp"], isoAlt: "Three-dimensional cut-away layout of 1 Bedroom C",
         legend: ["Entry lobby","Dining","Kitchen","Utility / yard","WC / SH","Lounge","Bedroom 01","Balcony"],
         hero: __IMG["interior/living-open-plan.webp"],
-        pending: "The brochure's 3D page for this layout is captioned 75 sqm while its plan page states 65 sqm. 65 sqm is used here; NBG to confirm." },
+        status: "subject",
+        confirmation: "The 65 sqm area follows the supplied floor plan. NBG should confirm this specification before reservation or purchase." },
       { id: "1bed-b", cat: "1bed", code: "1B", name: "1 Bedroom B", sqm: 75, beds: "1 bedroom", baths: "1 bath",
         rooms: "Kitchen, dining / lounge, master bedroom, balcony",
         plan: __IMG["plans/plan-1bed-b-75sqm.webp"], planAlt: "Floor plan of 1 Bedroom B, 75 square metres, showing bedroom, lounge and dining, kitchen, bath, lobby and balcony",
@@ -104,13 +105,13 @@ window.NBG_CONFIG = {
       { id: "3bed-160", cat: "3bed", code: "3-160", name: "3 Bedroom + DSQ", sqm: 160, beds: "3 bedrooms + DSQ", baths: "—",
         rooms: "Shown on the 10th-floor typical layout",
         plan: __IMG["plans/typical-floor-10.webp"], planAlt: "Typical 10th-floor layout showing the 3 bedroom plus DSQ apartments at 160 and 190 square metres",
-        iso: null, legend: [], hero: __IMG["exterior/ocean-mist-rooftop.webp"], layoutOnly: true,
-        pending: "A dedicated unit plan for this configuration was not included in the brochure. NBG to supply; the 10th-floor layout is shown." },
+        iso: null, legend: [], hero: __IMG["exterior/ocean-mist-rooftop.webp"], layoutOnly: true, status: "subject",
+        confirmation: "A dedicated unit plan was not supplied. The 160 sqm area and 10th-floor position are subject to NBG confirmation." },
       { id: "3bed-190", cat: "3bed", code: "3-190", name: "3 Bedroom + DSQ", sqm: 190, beds: "3 bedrooms + DSQ", baths: "—",
         rooms: "Shown on the 10th-floor typical layout",
         plan: __IMG["plans/typical-floor-10.webp"], planAlt: "Typical 10th-floor layout showing the 3 bedroom plus DSQ apartments at 160 and 190 square metres",
-        iso: null, legend: [], hero: __IMG["exterior/ocean-mist-aerial-terrace.webp"], layoutOnly: true,
-        pending: "A dedicated unit plan for this configuration was not included in the brochure. NBG to supply; the 10th-floor layout is shown." }
+        iso: null, legend: [], hero: __IMG["exterior/ocean-mist-aerial-terrace.webp"], layoutOnly: true, status: "subject",
+        confirmation: "A dedicated unit plan was not supplied. The 190 sqm area and 10th-floor position are subject to NBG confirmation." }
     ],
     /* ---- Tower levels (from brochure layouts) ------------------------- */
     levels: [
@@ -643,14 +644,18 @@ window.NBG_CONFIG = {
   function specHTML(u) {
     var rows = [["Residence", u.name], ["Area", NBG.fmtSqm(u.sqm)], ["Bedrooms", u.beds], ["Bathrooms", u.baths], ["Includes", u.rooms]];
     if (u.layoutOnly) rows = [["Residence", u.name], ["Area", NBG.fmtSqm(u.sqm)], ["Bedrooms", u.beds], ["Floor", "10th floor layout"]];
-    return '<dl class="spec">' + rows.map(function (r) { return '<div><dt>' + r[0] + '</dt><dd>' + esc(r[1]) + '</dd></div>'; }).join("") + '</dl>';
+    var status = u.status === "subject"
+      ? '<div class="spec-status subject"><span aria-hidden="true"></span>Subject to confirmation</div>'
+      : '<div class="spec-status confirmed"><span aria-hidden="true"></span>Confirmed in supplied brochure</div>';
+    return status + '<dl class="spec">' + rows.map(function (r) { return '<div><dt>' + r[0] + '</dt><dd>' + esc(r[1]) + '</dd></div>'; }).join("") + '</dl>';
   }
 
   function renderStage() {
     var u = unitById(state.unit), media = $("#stage-media"), info = $("#stage-info");
     var showIso = state.stageView === "iso" && !!u.iso, src = showIso ? u.iso : u.plan, alt = showIso ? u.isoAlt : u.planAlt;
     media.className = "stage-media" + (showIso ? "" : " plan");
-    media.innerHTML = '<div class="stage-media-head"><span class="stage-view-label"><span class="stage-view-dot" aria-hidden="true"></span>' + (showIso ? "3D layout" : "Floor plan") + '</span>' +
+    var viewLabel = showIso ? "Illustrative 3D layout" : (u.status === "subject" ? "Floor plan · subject to confirmation" : "Brochure floor plan");
+    media.innerHTML = '<div class="stage-media-head"><span class="stage-view-label"><span class="stage-view-dot" aria-hidden="true"></span>' + viewLabel + '</span>' +
       (u.iso ? '<div class="stage-toggle" role="group" aria-label="Visualisation"><button type="button" data-v="iso" aria-pressed="' + showIso + '">Layout</button><button type="button" data-v="plan" aria-pressed="' + !showIso + '">Plan</button></div>' : "") + '</div>' +
       '<button type="button" class="open-unit" aria-label="Open ' + esc(u.name) + ' visual in full screen"><span class="open-unit-label">Expand view <span aria-hidden="true">↗</span></span></button>' +
       '<img src="' + src + '" alt="' + esc(alt) + '" decoding="async">';
@@ -658,8 +663,8 @@ window.NBG_CONFIG = {
     $(".open-unit", media).addEventListener("click", function () { openUnit(u.id, showIso ? "iso" : "plan"); });
     info.innerHTML = '<p class="eyebrow">' + esc(catOf(u.cat).label) + '</p>' +
       '<h3>' + esc(u.name) + '</h3>' +
-      '<div class="stage-area"><p class="sqm">' + u.sqm + '<small>sqm</small></p><span>Indicative area</span></div>' + specHTML(u) +
-      (u.pending ? '<p class="pending-note"><strong>To be confirmed:</strong> ' + esc(u.pending) + '</p>' : "") +
+      '<div class="stage-area"><p class="sqm">' + u.sqm + '<small>sqm</small></p><span>' + (u.status === "subject" ? "Area subject to confirmation" : "Brochure area") + '</span></div>' + specHTML(u) +
+      (u.confirmation ? '<p class="pending-note"><strong>To be confirmed:</strong> ' + esc(u.confirmation) + '</p>' : "") +
       '<div class="stage-actions"><button class="btn btn-gold" type="button" data-act="plan">View floor plan</button><button class="btn btn-ghost" type="button" data-act="enq">Request a viewing</button>' + NBG.shortlist.heart(u.id) + '</div>';
     info.querySelector('[data-act="plan"]').addEventListener("click", function () { openUnit(u.id, "plan"); });
     info.querySelector('[data-act="enq"]').addEventListener("click", function () { NBG.enquire("viewing", u.id); });
@@ -687,9 +692,10 @@ window.NBG_CONFIG = {
       setTimeout(function () { var h = $(".pz-hint", viewer); if (h) h.style.opacity = 0; }, 4500);
     }
     var legend = u.legend && u.legend.length ? '<h3>Room arrangement</h3><ol>' + u.legend.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join("") + '</ol>' : "";
-    side.innerHTML = '<h3>' + esc(u.name) + '</h3>' + specHTML(u) + (u.pending ? '<p class="pending-note"><strong>To be confirmed:</strong> ' + esc(u.pending) + '</p>' : "") + legend +
+    var downloadLabel = u.layoutOnly ? "Download 10th-floor layout" : "Download plan";
+    side.innerHTML = '<h3>' + esc(u.name) + '</h3>' + specHTML(u) + (u.confirmation ? '<p class="pending-note"><strong>To be confirmed:</strong> ' + esc(u.confirmation) + '</p>' : "") + legend +
       '<h3>Switch configuration</h3><div class="size-row" style="margin-bottom:8px">' + D.units.map(function (x) { return '<button class="size-chip" type="button" data-u="' + x.id + '" aria-selected="' + (x.id === u.id) + '" style="min-width:0;padding:8px 12px"><b style="font-size:20px">' + x.sqm + '<small>sqm</small></b><span>' + (x.layoutOnly ? "3 bed" : x.code) + '</span></button>'; }).join("") + '</div>' +
-      '<div class="stage-actions"><button class="btn btn-gold" type="button" data-act="enq">Request a viewing</button>' + NBG.shortlist.heart(u.id) + '<button class="btn btn-ghost btn-sm" type="button" data-act="share">Share</button><a class="btn btn-ghost btn-sm" data-act="dl" href="' + u.plan + '" download="ocean-mist-' + u.id + '-floor-plan.webp">Download plan</a></div>';
+      '<div class="stage-actions"><button class="btn btn-gold" type="button" data-act="enq">Request a viewing</button>' + NBG.shortlist.heart(u.id) + '<button class="btn btn-ghost btn-sm" type="button" data-act="share">Share</button><a class="btn btn-ghost btn-sm" data-act="dl" href="' + u.plan + '" download="ocean-mist-' + u.id + '-floor-plan.webp">' + downloadLabel + '</a></div>';
     var sh = $('[data-act="share"]', side); sh.addEventListener("click", function () { var url = location.origin + location.pathname + "#residence-" + u.id, data = { title: u.name + " — Ocean Mist Tower", url: url }; if (navigator.share) navigator.share(data).catch(function () {}); else if (navigator.clipboard) navigator.clipboard.writeText(url).then(function () { sh.textContent = "Link copied"; setTimeout(function () { sh.textContent = "Share"; }, 1800); }, function () {}); });
     $$("[data-u]", side).forEach(function (b) { b.addEventListener("click", function () { dState.id = b.getAttribute("data-u"); renderDialog(); }); });
     $('[data-act="enq"]', side).addEventListener("click", function () { closeUnit(); NBG.enquire("viewing", u.id); });
