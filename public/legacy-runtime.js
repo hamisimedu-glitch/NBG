@@ -1270,17 +1270,18 @@ window.NBG_CONFIG = {
   var NBG = window.NBG, $ = NBG.$, $$ = NBG.$$, esc = NBG.esc;
   NBG.building = {
     init: function () {
-      var L = NBG.data.levels, tower = $("#tower"), panel = $("#bld-panel"); if (!tower) return;
+      var L = NBG.data.levels, tower = $("#tower"), panel = $("#bld-panel"), floorIndicator = $("#bld-floor-indicator"); if (!tower) return;
       var cur = 1;
       function info(l) { return l.plan ? l : L.filter(function (x) { return x.range === l.range && x.plan; })[0]; }
       tower.innerHTML = L.map(function (l, i) { return '<li class="' + (l.id === "roof" ? "roof" : l.id === "0" ? "ground" : "") + '"><button type="button" data-i="' + i + '" aria-pressed="false">' + esc(l.label) + '<span aria-hidden="true">' + (l.id === "roof" ? "◇" : l.id === "0" ? "G" : l.id) + '</span></button></li>'; }).join("");
       function paint() {
         var l = L[cur], d = info(l);
+        if (floorIndicator) floorIndicator.setAttribute("y", String(92 + cur * 30));
         $$("#tower button").forEach(function (b, i) { b.setAttribute("aria-pressed", i === cur); b.classList.toggle("in-range", i !== cur && L[i].range === l.range); });
         panel.innerHTML = '<p class="eyebrow"><span class="line"></span>' + esc(l.label) + '</p><h3>' + esc(d.title) + '</h3><p>' + esc(d.text) + '</p>' +
-          '<div class="bld-plan" role="button" tabindex="0" aria-label="Open ' + esc(d.title) + ' layout full screen">' + NBG.img(d.plan, d.title + " layout from the brochure", { w: 2400, h: 1716, lazy: false }) + '</div>' +
+          '<div class="bld-plan" role="button" tabindex="0" aria-label="Open ' + esc(d.title) + ' layout full screen"><span class="bld-plan-label"><span>Brochure layout</span><span>Expand ↗</span></span>' + NBG.img(d.plan, d.title + " layout from the brochure", { w: 2400, h: 1716, lazy: false }) + '</div>' +
           '<div class="bld-tags">' + d.tags.map(function (t) { return '<span>' + esc(t) + '</span>'; }).join("") + '</div>' +
-          '<div class="bld-nav"><button class="icon-btn" id="bld-up" type="button" aria-label="Level above"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M3 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></button><button class="icon-btn" id="bld-dn" type="button" aria-label="Level below"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M3 7l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></button><span style="font-size:12px;color:var(--muted);letter-spacing:.1em">Use ↑ ↓ keys on the tower</span></div>';
+          '<div class="bld-nav"><button class="icon-btn" id="bld-up" type="button" aria-label="Level above"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M3 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></button><button class="icon-btn" id="bld-dn" type="button" aria-label="Level below"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M3 7l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></button><span>Select a level or use arrow keys</span></div>';
         var plan = $(".bld-plan", panel);
         function open() { NBG.lightbox.open([{ src: d.plan, alt: d.title, cap: d.title + " — brochure layout" }], 0); }
         plan.addEventListener("click", open); plan.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });

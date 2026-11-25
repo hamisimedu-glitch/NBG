@@ -260,10 +260,47 @@
             <p class="eyebrow reveal"><span class="line"></span>Explore the tower</p>
             <h2 class="display reveal" data-split>Floor by floor,<br><em>from ground to sky.</em></h2>
           </div>
-          <p class="lead reveal">Select a level to see the brochure layout for that part of the tower.</p>
+          <p class="lead reveal">Trace the tower from arrival level to rooftop. Select a floor to see its corresponding brochure layout.</p>
         </header>
         <div class="bld-shell">
-          <ol class="tower" id="tower" aria-label="Tower levels"></ol>
+          <div class="bld-elevation">
+            <div class="bld-elevation-head">
+              <span class="bld-elevation-kicker">Tower elevation</span>
+              <span class="bld-elevation-count">Ground + 10 floors</span>
+            </div>
+            <div class="bld-elevation-stage">
+              <svg class="bld-elevation-art" viewBox="0 0 180 520" role="img" aria-label="Illustrative tower elevation with the selected floor highlighted" focusable="false">
+                <defs>
+                  <pattern id="bld-window-grid" width="28" height="30" patternUnits="userSpaceOnUse">
+                    <rect width="28" height="30" fill="#173747"></rect>
+                    <rect x="4" y="4" width="8" height="18" fill="#6BA8AA" opacity=".78"></rect>
+                    <rect x="16" y="4" width="8" height="18" fill="#3D7580" opacity=".82"></rect>
+                    <path d="M0 29.5H28" stroke="#8FC7C3" stroke-opacity=".44"></path>
+                  </pattern>
+                  <linearGradient id="bld-tower-side" x1="0" x2="1">
+                    <stop offset="0" stop-color="#214554"></stop>
+                    <stop offset="1" stop-color="#102936"></stop>
+                  </linearGradient>
+                </defs>
+                <path d="M13 474H168" stroke="#6CA9A8" stroke-opacity=".42"></path>
+                <path d="M40 456V92L116 64L154 81V456Z" fill="#173747" stroke="#90C7C4" stroke-opacity=".55"></path>
+                <path d="M116 64L154 81V456H116Z" fill="url(#bld-tower-side)" stroke="#90C7C4" stroke-opacity=".32"></path>
+                <path d="M48 101L109 78V447H48Z" fill="url(#bld-window-grid)"></path>
+                <path d="M120 85L147 97V447H120Z" fill="url(#bld-window-grid)" opacity=".76"></path>
+                <rect id="bld-floor-indicator" x="38" y="92" width="119" height="30" fill="#4FD8D2" fill-opacity=".26" stroke="#8DF3E8" stroke-width="1.5"></rect>
+                <path d="M40 92L116 64L154 81M40 456H154M116 64V456" fill="none" stroke="#B8F0EA" stroke-opacity=".68"></path>
+                <path d="M34 456V466H160V456M48 456V474M147 456V474" fill="none" stroke="#6CA9A8" stroke-opacity=".52"></path>
+                <path d="M26 474H36M158 474H170" stroke="#8FC7C3" stroke-opacity=".6"></path>
+                <circle cx="23" cy="428" r="13" fill="#1B4950" opacity=".9"></circle>
+                <circle cx="164" cy="437" r="16" fill="#1B4950" opacity=".72"></circle>
+              </svg>
+              <ol class="tower" id="tower" aria-label="Select a tower level"></ol>
+            </div>
+            <div class="bld-elevation-foot">
+              <span>Select a level to preview its layout</span>
+              <span>Illustrative / not to scale</span>
+            </div>
+          </div>
           <div class="bld-panel" id="bld-panel" aria-live="polite"></div>
         </div>
         <figure class="section-film reveal" data-broadcast-clip>
