@@ -24,25 +24,30 @@ function NbgConstructionLoader() {
     const minimumDuration = reducedMotion ? 700 : 3500
     const fallbackDuration = reducedMotion ? 9000 : 12000
     const fadeDuration = reducedMotion ? 20 : 500
+    const root = document.documentElement
+    const previousOverflow = root.style.overflow
     let frame = 0
     let leavingAt = null
+    root.style.overflow = 'hidden'
 
     const update = (now) => {
       const elapsed = now - startedAt
       const ratio = reducedMotion ? 1 : Math.min(elapsed / 2330, 1)
       setProgress(Math.floor(ratio * 100))
 
-      const legacyLoaderRemoved = !document.getElementById('loader')
+      const heroImage = document.querySelector('.hero-img')
+      const siteReady = Boolean(window.NBG && window.NBG.ready && (!heroImage || heroImage.complete))
       if (
         leavingAt === null &&
         elapsed >= minimumDuration &&
-        (legacyLoaderRemoved || elapsed >= fallbackDuration)
+        (siteReady || elapsed >= fallbackDuration)
       ) {
         leavingAt = now
         setLeaving(true)
       }
 
       if (leavingAt !== null && now - leavingAt >= fadeDuration) {
+        root.style.overflow = previousOverflow
         setVisible(false)
         return
       }
@@ -51,7 +56,10 @@ function NbgConstructionLoader() {
     }
 
     frame = requestAnimationFrame(update)
-    return () => cancelAnimationFrame(frame)
+    return () => {
+      cancelAnimationFrame(frame)
+      root.style.overflow = previousOverflow
+    }
   }, [])
 
   if (!visible) return null
@@ -59,6 +67,8 @@ function NbgConstructionLoader() {
   return (
     <div
       className={`nbg-loader${leaving ? ' nbg-loader--leaving' : ''}`}
+      role="status"
+      aria-live="polite"
       aria-label="Constructing your experience"
     >
       <div className="nbg-loader__content">
@@ -148,8 +158,6 @@ function NbgConstructionLoader() {
               <path pathLength={1} d="M132 74V68H147V74M299 74V68H314V74" />
               <path pathLength={1} d="M157 66H283M164 62H276" stroke="#087F85" strokeWidth="0.9" />
               <path pathLength={1} d="M119 83H322L352 68" stroke="#B9F0EE" strokeWidth="1.25" />
-              <path pathLength={1} d="M343 59V46M347 57V43M343 46H347" stroke="#20C5C8" strokeWidth="1" />
-              <path pathLength={1} d="M225 59V50M221 50H229M225 50V45" stroke="#087F85" strokeWidth="0.9" />
             </g>
 
             <path
@@ -187,6 +195,7 @@ function NbgConstructionLoader() {
         >
           <span className="nbg-loader__fill" style={{ width: `${progress}%` }} />
         </div>
+        <p className="nbg-loader__location">NYALI · MOMBASA</p>
       </div>
     </div>
   )
