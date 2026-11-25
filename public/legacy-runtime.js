@@ -1,5 +1,44 @@
 /* Classic-script runtime retained to preserve the existing page behavior. */
-document.querySelectorAll("img[data-k]").forEach(function(i){i.src=window.__IMG[i.getAttribute("data-k")]})
+window.__NBG_RESPONSIVE_SRCSET = function (src) {
+  var sourceWidths = {
+    "ocean-mist-aerial-site.webp": 1800,
+    "ocean-mist-aerial-terrace.webp": 1164,
+    "ocean-mist-facade.webp": 1400,
+    "ocean-mist-front.webp": 1600,
+    "ocean-mist-hero.webp": 2400,
+    "ocean-mist-rooftop.webp": 1162,
+    "ocean-mist-street.webp": 2000,
+    "bathroom.webp": 1800,
+    "dining-table.webp": 2000,
+    "kitchen-breakfast-bar.webp": 1527,
+    "living-lounge.webp": 2000,
+    "living-media-wall.webp": 2000,
+    "living-open-plan.webp": 2000,
+    "living-suite.webp": 2200
+  };
+  var filename = src.split("/").pop().split(/[?#]/)[0], sourceWidth = sourceWidths[filename];
+  if (!sourceWidth || !/\.webp(?:[?#].*)?$/i.test(src)) return "";
+  var stem = src.replace(/\.webp([?#].*)?$/i, ""), suffix = /\.webp([?#].*)?$/i.exec(src)[1] || "";
+  var variants = [480, 960, 1440].filter(function (width) { return width < sourceWidth; }).map(function (width) {
+    return stem + "-" + width + ".webp" + suffix + " " + width + "w";
+  });
+  variants.push(src + " " + sourceWidth + "w");
+  return variants.join(", ");
+};
+
+document.querySelectorAll("img[data-k]").forEach(function (image) {
+  var key = image.getAttribute("data-k"), src = window.__IMG[key];
+  if (!src) {
+    console.error("Missing image asset mapping:", key);
+    return;
+  }
+  var srcset = window.__NBG_RESPONSIVE_SRCSET(src);
+  if (srcset) {
+    image.srcset = srcset;
+    if (!image.sizes) image.sizes = "100vw";
+  }
+  image.src = src;
+});
 
 /* ==========================================================================
    NBG SITE CONFIGURATION — edit this file only to wire up real business data.
@@ -208,19 +247,19 @@ window.NBG_CONFIG = {
   NBG.reduced = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
   NBG.esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
 
-  /* images that ship an -800 responsive variant */
-  NBG.hasSmall = /a^/; var _unused = /(ocean-mist-(front|hero|facade|aerial-site|street)|brochure-location-map|kitchen-breakfast-bar|living-(open-plan|media-wall|suite|lounge)|dining-table|bathroom)\.webp$/;
   NBG.img = function (src, alt, o) {
     o = o || {};
     var s = '<img src="' + src + '"';
-    if (NBG.hasSmall.test(src) && !/-800\.webp$/.test(src) && o.w > 800) {
-      s += ' srcset="' + src.replace(".webp", "-800.webp") + ' 800w, ' + src + " " + o.w + 'w"';
-      if (o.sizes) s += ' sizes="' + o.sizes + '"';
+    var srcset = window.__NBG_RESPONSIVE_SRCSET(src);
+    if (srcset) {
+      s += ' srcset="' + NBG.esc(srcset) + '"';
+      s += ' sizes="' + NBG.esc(o.sizes || "100vw") + '"';
     }
     if (o.w) s += ' width="' + o.w + '"';
     if (o.h) s += ' height="' + o.h + '"';
     s += ' alt="' + NBG.esc(alt || "") + '"';
     if (o.lazy !== false) s += ' loading="lazy" decoding="async"';
+    else s += ' decoding="async"';
     if (o.cls) s += ' class="' + o.cls + '"';
     return s + ">";
   };
@@ -611,7 +650,7 @@ window.NBG_CONFIG = {
     wrap.innerHTML = D.categories.map(function (c, i) {
       var media = c.video
         ? '<video class="cc-film" data-broadcast-video muted loop playsinline preload="none" width="1280" height="720" poster="' + esc(c.img) + '" aria-hidden="true"><source src="' + esc(c.video) + '" type="video/mp4"></video><span class="cc-video-status" data-clip-status role="status" aria-live="polite"></span>'
-        : NBG.img(c.img, "", { w: 1200, h: 900 });
+        : NBG.img(c.img, "", { w: 1200, h: 900, sizes: "(max-width:900px) 100vw, 33vw" });
       return '<button class="cat-card" role="tab" type="button" data-cat="' + c.id + '"' + (c.video ? ' data-broadcast-clip' : '') + ' aria-selected="' + (c.id === state.cat) + '">' +
         '<span class="cc-img">' + media + '</span>' +
         (c.video ? '<span class="cc-film-tag">Film excerpt</span>' : '') +
@@ -680,7 +719,7 @@ window.NBG_CONFIG = {
     pz = null; viewer.innerHTML = "";
     if (v === "rooms") {
       var imgs = []; D.rooms.forEach(function (r) { if (r.id !== "rooftop") r.images.forEach(function (im) { imgs.push({ src: im.src, alt: im.alt, cap: r.label + " — interior visualisation" }); }); });
-      viewer.innerHTML = '<div class="ud-rooms">' + imgs.map(function (im, i) { return '<button type="button" data-i="' + i + '" aria-label="Open ' + esc(im.cap) + '">' + NBG.img(im.src, im.alt, { w: 800 }) + '</button>'; }).join("") + '</div>';
+      viewer.innerHTML = '<div class="ud-rooms">' + imgs.map(function (im, i) { return '<button type="button" data-i="' + i + '" aria-label="Open ' + esc(im.cap) + '">' + NBG.img(im.src, im.alt, { w: 800, sizes: "(max-width:640px) 100vw, 50vw" }) + '</button>'; }).join("") + '</div>';
       $$(".ud-rooms button", viewer).forEach(function (b) { b.addEventListener("click", function () { NBG.lightbox.open(imgs, +b.getAttribute("data-i")); }); });
     } else {
       var src = v === "iso" ? u.iso : u.plan, alt = v === "iso" ? u.isoAlt : u.planAlt;
@@ -831,7 +870,7 @@ window.NBG_CONFIG = {
 
   function amenities() {
     $("#amen-grid").innerHTML = NBG.data.amenities.map(function (a, i) {
-      return '<article class="amen reveal" style="--d:' + (i % 4) * 90 + 'ms">' + (a.img ? '<div class="a-bg">' + NBG.img(a.img, "", { w: 1000 }) + '</div>' : '') +
+      return '<article class="amen reveal" style="--d:' + (i % 4) * 90 + 'ms">' + (a.img ? '<div class="a-bg">' + NBG.img(a.img, "", { w: 1000, sizes: "(max-width:640px) 100vw, (max-width:1100px) 50vw, 25vw" }) + '</div>' : '') +
         '<span class="a-no">0' + (i + 1) + '</span><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICONS[a.icon] + '</svg><h3>' + esc(a.title) + '</h3><p>' + esc(a.text) + '</p></article>';
     }).join("");
   }

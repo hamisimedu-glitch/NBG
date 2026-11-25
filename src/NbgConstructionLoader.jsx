@@ -22,7 +22,7 @@ function NbgConstructionLoader() {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const startedAt = performance.now()
     const minimumDuration = reducedMotion ? 700 : 3500
-    const fallbackDuration = reducedMotion ? 9000 : 12000
+    const fallbackDuration = 5200
     const fadeDuration = reducedMotion ? 20 : 500
     const root = document.documentElement
     const previousOverflow = root.style.overflow
