@@ -1,6 +1,6 @@
 .nbg-loader {
   position: fixed;
-  z-index: 300;
+  z-index: 600;
   inset: 0;
   overflow: hidden;
   background:
