@@ -463,6 +463,30 @@ window.NBG_CONFIG = {
       var heroTitle = $(".hero-title");
       if (heroTitle) { heroTitle.style.setProperty("--base", "250ms"); NBG.whenReady(function () { setTimeout(function () { heroTitle.classList.add("is-in"); $$(".hero .reveal").forEach(function (r) { r.classList.add("is-in"); }); }, 120); }); }
 
+      /* layered hero image: user-controlled zoom and subtle pointer depth */
+      var heroZoom = $("[data-hero-zoom]"), heroPlane = $(".hero-image-plane", hero);
+      if (hero && heroZoom && heroPlane) {
+        heroZoom.addEventListener("click", function () {
+          var zoomed = hero.classList.toggle("is-zoomed");
+          heroZoom.setAttribute("aria-pressed", String(zoomed));
+          heroZoom.setAttribute("aria-label", zoomed ? "Reset Ocean Mist Tower image zoom" : "Zoom in on Ocean Mist Tower");
+          $("[data-hero-zoom-label]", heroZoom).textContent = zoomed ? "Reset view" : "Zoom the view";
+        });
+        if (!reduced && window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches) {
+          hero.addEventListener("pointermove", function (e) {
+            if (e.pointerType === "touch") return;
+            var rect = hero.getBoundingClientRect();
+            var x = (e.clientX - rect.left) / rect.width - .5, y = (e.clientY - rect.top) / rect.height - .5;
+            heroPlane.style.setProperty("--hero-rotate-x", (-y * 2.8).toFixed(2) + "deg");
+            heroPlane.style.setProperty("--hero-rotate-y", (x * 3.4).toFixed(2) + "deg");
+          });
+          hero.addEventListener("pointerleave", function () {
+            heroPlane.style.removeProperty("--hero-rotate-x");
+            heroPlane.style.removeProperty("--hero-rotate-y");
+          });
+        }
+      }
+
       /* counters */
       var counters = $$("[data-count]");
       function run(el) {
