@@ -2,9 +2,9 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import './NbgConstructionLoader.css'
 
 const floors = Array.from({ length: 9 }, (_, index) => index)
-const DRAW_DURATION = 1200
-const FADE_DURATION = 300
-const READY_TIMEOUT = 1800
+const DRAW_DURATION = 2600
+const FADE_DURATION = 400
+const READY_TIMEOUT = 3500
 
 function NbgConstructionLoader({ ready }) {
   const [progress, setProgress] = useState(0)
@@ -89,7 +89,7 @@ function NbgConstructionLoader({ ready }) {
               <path d="M91 438H374" stroke="#B9F0EE" strokeWidth="1.25" />
             </g>
 
-            <g className="nbg-loader__draw nbg-loader__lobby" style={{ animationDelay: '120ms' }}>
+            <g className="nbg-loader__draw nbg-loader__lobby" style={{ animationDelay: '280ms' }}>
               <path d="M129 344H322L350 329M129 414H322L350 399M129 344V414M322 344V414M350 329V399M322 414L350 399" />
               <path d="M129 414H350M129 344H322" stroke="#20C5C8" strokeWidth="1.4" />
               <path d="M176 346V412M275 346V412M176 346H275V412H176Z" />
@@ -101,7 +101,7 @@ function NbgConstructionLoader({ ready }) {
 
             {floors.map((index) => {
               const slabY = 344 - index * 30
-              const delay = 180 + index * 55
+              const delay = 420 + index * 105
 
               return (
                 <g
@@ -137,7 +137,7 @@ function NbgConstructionLoader({ ready }) {
               )
             })}
 
-            <g className="nbg-loader__draw nbg-loader__roof" style={{ animationDelay: '650ms' }}>
+            <g className="nbg-loader__draw nbg-loader__roof" style={{ animationDelay: '1600ms' }}>
               <path d="M119 74H322L357 56M119 74V83M322 74L357 56V65M124 83H322L352 68" />
               <path d="M132 74V68H147V74M299 74V68H314V74" />
               <path d="M157 66H283M164 62H276" stroke="#087F85" strokeWidth="0.9" />
