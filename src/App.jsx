@@ -64,7 +64,7 @@ function App() {
 
     readyFallback = window.setTimeout(() => {
       if (active) setSiteReady(true)
-    }, 3500)
+    }, 1800)
 
     document.body.appendChild(script)
 
